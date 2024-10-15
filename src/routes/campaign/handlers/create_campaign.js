@@ -28,11 +28,12 @@ export const CreateCampaign = (wrikeToken, params, fastify) => {
       const {
         spaceName,
         folderId,
-        campaignBlueprintId,
+        listOfFolderBlueprintId,
         listOfChannelBlueprintId,
         wrikeCampaign,
       } = params;
       let customFields = [];
+      let parentFolderId = "";
 
       // // Get Custom Field Ids
       // const customFieldsData = await GetResponse(
@@ -48,23 +49,37 @@ export const CreateCampaign = (wrikeToken, params, fastify) => {
       //   return reject({ message: "Failed to fetch custom field ids!" });
       // }
 
-      // Clone folder blueprint
-      const folderBlueprintData = await GetResponse(
-        `${process.env.WRIKE_ENDPOINT}/folder_blueprints/${campaignBlueprintId}/launch_async`,
-        "POST",
-        {
-          "content-type": "application/json",
-          Authorization: `Bearer ${wrikeToken}`,
-        },
-        {
-          parent: folderId,
-          title: wrikeCampaign?.campaignName,
+      // Iterating task blueprint id
+      for (let i = 0; i < listOfFolderBlueprintId.length; i++) {
+        const folderBlueprintId = listOfFolderBlueprintId[i];
+        if (!folderBlueprintId) {
+          return reject({ message: "Invalid folderblueprint Id" });
         }
-      );
 
-      // Sending error response
-      if (folderBlueprintData?.errorDescription) {
-        return reject(folderBlueprintData);
+        // Clone folder blueprint
+        const folderBlueprintData = await GetResponse(
+          `${process.env.WRIKE_ENDPOINT}/folder_blueprints/${folderBlueprintId?.id}/launch_async`,
+          "POST",
+          {
+            "content-type": "application/json",
+            Authorization: `Bearer ${wrikeToken}`,
+          },
+          {
+            parent: parentFolderId || folderId,
+            title: folderBlueprintId?.title,
+          }
+        );
+
+        // Sending error response
+        if (folderBlueprintData?.errorDescription) {
+          return reject(folderBlueprintData);
+        }
+
+        if (!parentFolderId)
+          parentFolderId = await getFolderParentId(
+            folderBlueprintData,
+            wrikeToken
+          );
       }
 
       // Constructing CF values
@@ -103,7 +118,9 @@ export const CreateCampaign = (wrikeToken, params, fastify) => {
       for (let i = 0; i < listOfChannelBlueprintId.length; i++) {
         const taskBlueprintId = listOfChannelBlueprintId[i];
 
-        if (!taskBlueprintId) return;
+        if (!taskBlueprintId) {
+          return reject({ message: "Invalid task blueprint Id" });
+        }
 
         // Cloning task blueprint
         const taskBlueprintData = await GetResponse(
@@ -147,7 +164,7 @@ export const CreateCampaign = (wrikeToken, params, fastify) => {
           ccuid: wrikeCampaign?.ccuid,
           customFields: {},
           listOfTaskIds: listOfChannelBlueprintId,
-          listOfChannelIds: campaignBlueprintId,
+          listOfChannelIds: listOfFolderBlueprintId,
           wrikev2id: wrikeCampaign?.wrikev2id,
           wrikev3id: wrikeCampaign?.wrikev3id,
           wrikePermalink: wrikeCampaign?.wrikePermalink,
@@ -156,6 +173,49 @@ export const CreateCampaign = (wrikeToken, params, fastify) => {
     } catch (err) {
       console.log(err?.message || err);
       reject(err);
+    }
+  });
+};
+
+const getFolderParentId = (folderData, wrikeToken) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let getStatus = {};
+      while (getStatus?.status != "Completed") {
+        getStatus = await checkFolderStatus(
+          folderData?.data[0]?.id,
+          wrikeToken
+        );
+      }
+
+      resolve(getStatus?.result?.folderId);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const checkFolderStatus = (jobId, wrikeToken) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // Cloning task blueprint
+      const jobStatus = await GetResponse(
+        `${process.env.WRIKE_ENDPOINT}/async_job/${jobId}`,
+        "GET",
+        {
+          "content-type": "application/json",
+          Authorization: `Bearer ${wrikeToken}`,
+        }
+      );
+
+      // Sending task blueprint error response
+      if (jobStatus?.errorDescription) {
+        return reject(jobStatus);
+      }
+
+      resolve(jobStatus?.data?.[0]);
+    } catch (error) {
+      reject(error);
     }
   });
 };
