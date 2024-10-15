@@ -48,19 +48,6 @@ export const CreateCampaign = (wrikeToken, params, fastify) => {
       //   return reject({ message: "Failed to fetch custom field ids!" });
       // }
 
-      // Constructing CF values
-      await Promise.all(
-        Object.keys(customFieldsMeta)?.map((data) => {
-          const currentData = customFieldsMeta[data];
-          if (currentData?.id) {
-            customFields.push({
-              id: currentData?.id,
-              value: wrikeCampaign[currentData?.key],
-            });
-          }
-        })
-      );
-
       // Clone folder blueprint
       const folderBlueprintData = await GetResponse(
         `${process.env.WRIKE_ENDPOINT}/folder_blueprints/${campaignBlueprintId}/launch_async`,
@@ -75,10 +62,25 @@ export const CreateCampaign = (wrikeToken, params, fastify) => {
         }
       );
 
+      // Sending error response
       if (folderBlueprintData?.errorDescription) {
         return reject(folderBlueprintData);
       }
 
+      // Constructing CF values
+      await Promise.all(
+        Object.keys(customFieldsMeta)?.map((data) => {
+          const currentData = customFieldsMeta[data];
+          if (currentData?.id) {
+            customFields.push({
+              id: currentData?.id,
+              value: wrikeCampaign[currentData?.key],
+            });
+          }
+        })
+      );
+
+      // Modifing folder data
       const folderUpdatedResp = await GetResponse(
         `${process.env.WRIKE_ENDPOINT}/folders/${folderId}`,
         "PUT",
@@ -92,16 +94,18 @@ export const CreateCampaign = (wrikeToken, params, fastify) => {
         }
       );
 
+      // Sending folder update error response
       if (folderUpdatedResp?.errorDescription) {
         return reject(folderUpdatedResp);
       }
 
-      // listOfChannelBlueprintId.forEach(async (taskBlueprintId) => {
+      // Iterating task blueprint id
       for (let i = 0; i < listOfChannelBlueprintId.length; i++) {
         const taskBlueprintId = listOfChannelBlueprintId[i];
 
         if (!taskBlueprintId) return;
 
+        // Cloning task blueprint
         const taskBlueprintData = await GetResponse(
           `${process.env.WRIKE_ENDPOINT}/task_blueprints/${taskBlueprintId}/launch_async`,
           "POST",
@@ -115,11 +119,13 @@ export const CreateCampaign = (wrikeToken, params, fastify) => {
           }
         );
 
+        // Sending task blueprint error response
         if (taskBlueprintData?.errorDescription) {
           return reject(taskBlueprintData);
         }
       }
 
+      // Sending final response
       resolve({
         message: "Campaign has been created successfully",
         data: {
