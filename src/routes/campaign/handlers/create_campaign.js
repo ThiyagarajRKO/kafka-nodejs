@@ -1,37 +1,20 @@
 import { GetResponse } from "../../../../utils/node-fetch";
 
-const requiredCFNames = [
-  "Campaign Name*",
-  "Campaign Objective*",
-  "Campaign Start Date*",
-  "Campaign End Date*",
-  "Biddable Nonbiddable*",
-  "Currency*",
-  "Campaign Budget*",
-  "Requestor Market*",
-  "Agency*",
-  "Client*",
-  "Debtor*",
-  "Brand*",
-  "CSSID*",
-  "CCUID*",
-];
-
-const requiredCFIds = {
-  TEST: [
-    "IEABCEFLJUAEF4B7",
-    "IEABCEFLJUAEF4AJ",
-    "IEABCEFLJUAEGPM6",
-    "IEABCEFLJUAEF4AO",
-    "IEABCEFLJUAEGZFP",
-    "IEABCEFLJUAEF4BI",
-    "IEABCEFLJUAEF4BJ",
-    "IEABCEFLJUAEGGC3",
-    "IEABCEFLJUAEF4AI",
-    "IEABCEFLJUAGCS2I",
-    "IEABCEFLJUAGCS2J",
-    "IEABCEFLJUAEF4AK",
-  ],
+const customFieldsMeta = {
+  "Campaign Name*": { id: "IEABCEFLJUAEF4AO", key: "campaignName" },
+  "Campaign Objective*": { id: "IEABCEFLJUAEF4B7", key: "campaignDescription" },
+  "Campaign Start Date*": { id: "IEABCEFLJUAEF4BI", key: "campaignObjective" },
+  "Campaign End Date*": { id: "IEABCEFLJUAEF4BJ", key: "campaignStartDate" },
+  "Biddable Nonbiddable*": { id: "", key: "campaignEndDate" },
+  "Currency*": { id: "IEABCEFLJUAEGPM6", key: "currency" },
+  "Campaign Budget*": { id: "IEABCEFLJUAEGZFP", key: "campaignBudget" },
+  "Requestor Market*": { id: "", key: "requestorMarket" },
+  "Agency*": { id: "IEABCEFLJUAEF4AI", key: "agency" },
+  "Client*": { id: "IEABCEFLJUAEF4AK", key: "client" },
+  "Debtor*": { id: "IEABCEFLJUAEGGC3", key: "debtor" },
+  "Brand*": { id: "IEABCEFLJUAEF4AJ", key: "brand" },
+  "CSSID*": { id: "IEABCEFLJUAGCS2I", key: "cssid" },
+  "CCUID*": { id: "IEABCEFLJUAGCS2J", key: "ccuid" },
 };
 
 export const CreateCampaign = (wrikeToken, params, fastify) => {
@@ -49,6 +32,7 @@ export const CreateCampaign = (wrikeToken, params, fastify) => {
         listOfChannelBlueprintId,
         wrikeCampaign,
       } = params;
+      let customFields = [];
 
       // // Get Custom Field Ids
       // const customFieldsData = await GetResponse(
@@ -64,14 +48,18 @@ export const CreateCampaign = (wrikeToken, params, fastify) => {
       //   return reject({ message: "Failed to fetch custom field ids!" });
       // }
 
-      // // Extracting valid CF ids
-      // await Promise.all(
-      //   customFieldsData?.data?.map((data) => {
-      //     if (requiredCFIds.includes(data?.title)) {
-      //       customFieldIds.push(data?.id);
-      //     }
-      //   })
-      // );
+      // Constructing CF values
+      await Promise.all(
+        Object.keys(customFieldsMeta)?.map((data) => {
+          const currentData = customFieldsMeta[data];
+          if (currentData?.id) {
+            customFields.push({
+              id: currentData?.id,
+              value: wrikeCampaign[currentData?.key],
+            });
+          }
+        })
+      );
 
       // Clone folder blueprint
       const folderBlueprintData = await GetResponse(
@@ -89,6 +77,23 @@ export const CreateCampaign = (wrikeToken, params, fastify) => {
 
       if (folderBlueprintData?.errorDescription) {
         return reject(folderBlueprintData);
+      }
+
+      const folderUpdatedResp = await GetResponse(
+        `${process.env.WRIKE_ENDPOINT}/folders/${folderId}`,
+        "PUT",
+        {
+          "content-type": "application/json",
+          Authorization: `Bearer ${wrikeToken}`,
+        },
+        {
+          description: wrikeCampaign?.campaignDescription,
+          customFields,
+        }
+      );
+
+      if (folderUpdatedResp?.errorDescription) {
+        return reject(folderUpdatedResp);
       }
 
       // listOfChannelBlueprintId.forEach(async (taskBlueprintId) => {
@@ -118,6 +123,7 @@ export const CreateCampaign = (wrikeToken, params, fastify) => {
       resolve({
         message: "Campaign has been created successfully",
         data: {
+          requiredCFIds,
           campaignName: wrikeCampaign?.campaignName,
           campaignDescription: wrikeCampaign?.campaignDescription,
           campaignObjective: wrikeCampaign?.campaignObjective,
