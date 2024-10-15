@@ -19,7 +19,7 @@ export const GetResponse = (url, method, headers, body) => {
 
       let data = await response.json();
 
-      resolve({ data });
+      resolve(data);
     } catch (err) {
       reject(err);
     }
