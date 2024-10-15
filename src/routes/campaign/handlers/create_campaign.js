@@ -1,4 +1,4 @@
-import { GetResponse } from "../../../../utils/node-fetch";
+import { GetResponse } from "../../../utils/node-fetch";
 
 const customFieldsMeta = {
   "Campaign Name*": { id: "IEABCEFLJUAEF4AO", key: "campaignName" },
@@ -129,7 +129,6 @@ export const CreateCampaign = (wrikeToken, params, fastify) => {
       resolve({
         message: "Campaign has been created successfully",
         data: {
-          requiredCFIds,
           campaignName: wrikeCampaign?.campaignName,
           campaignDescription: wrikeCampaign?.campaignDescription,
           campaignObjective: wrikeCampaign?.campaignObjective,
