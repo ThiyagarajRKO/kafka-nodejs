@@ -2,10 +2,10 @@ import { GetResponse } from "../../../utils/node-fetch";
 
 const customFieldsMeta = {
   "Campaign Name*": { id: "IEABCEFLJUAEF4AO", key: "campaignName" },
-  "Campaign Objective*": { id: "IEABCEFLJUAEF4B7", key: "campaignDescription" },
-  "Campaign Start Date*": { id: "IEABCEFLJUAEF4BI", key: "campaignObjective" },
-  "Campaign End Date*": { id: "IEABCEFLJUAEF4BJ", key: "campaignStartDate" },
-  "Biddable Nonbiddable*": { id: "", key: "campaignEndDate" },
+  "Campaign Objective*": { id: "IEABCEFLJUAEF4B7", key: "campaignObjective" },
+  "Campaign Start Date*": { id: "IEABCEFLJUAEF4BI", key: "campaignStartDate" },
+  "Campaign End Date*": { id: "IEABCEFLJUAEF4BJ", key: "campaignEndDate" },
+  "Biddable Nonbiddable*": { id: "", key: "biddableNonbiddable" },
   "Currency*": { id: "IEABCEFLJUAEGPM6", key: "currency" },
   "Campaign Budget*": { id: "IEABCEFLJUAEGZFP", key: "campaignBudget" },
   "Requestor Market*": { id: "", key: "requestorMarket" },
