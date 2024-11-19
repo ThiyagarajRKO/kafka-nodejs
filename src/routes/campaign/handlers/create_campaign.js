@@ -108,6 +108,9 @@ export const CreateCampaign = (wrikeToken, params, fastify) => {
         return reject(folderUpdatedResp);
       }
 
+      if (listOfChannelBlueprintId.length > 0)
+        await getChannelTitles(wrikeToken, listOfChannelBlueprintId);
+
       // Iterating task blueprint id
       for (let i = 0; i < listOfChannelBlueprintId.length; i++) {
         const taskBlueprintId = listOfChannelBlueprintId[i];
@@ -126,7 +129,8 @@ export const CreateCampaign = (wrikeToken, params, fastify) => {
           },
           {
             parentId: parentFolderId,
-            title: wrikeCampaign?.campaignName,
+            title:
+              channelTitles[taskBlueprintId] || wrikeCampaign?.campaignName,
           }
         );
 
@@ -214,12 +218,12 @@ const checkFolderStatus = (jobId, wrikeToken) => {
   });
 };
 
-const getChannelTitles = () => {
+const getChannelTitles = (wrikeToken, listOfChannelBlueprintId) => {
   return new Promise(async (resolve, reject) => {
     try {
       // Cloning task blueprint
       const jobStatus = await GetResponse(
-        `${process.env.WRIKE_ENDPOINT}/async_job/${jobId}`,
+        `${process.env.WRIKE_ENDPOINT}/task_blueprints`,
         "GET",
         {
           "content-type": "application/json",
@@ -232,7 +236,15 @@ const getChannelTitles = () => {
         return reject(jobStatus);
       }
 
-      resolve(jobStatus?.data?.[0]);
+      await Promise.all(
+        jobStatus?.data?.map((data) => {
+          if (listOfChannelBlueprintId.includes(data.id)) {
+            channelTitles[data?.id] = data?.title;
+          }
+        })
+      );
+
+      resolve();
     } catch (error) {
       reject(error);
     }
