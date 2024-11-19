@@ -17,6 +17,8 @@ const customFieldsMeta = {
   "CCUID*": { id: "IEABCEFLJUAGCS2J", key: "ccuid" },
 };
 
+let channelTitles = {};
+
 export const CreateCampaign = (wrikeToken, params, fastify) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -28,12 +30,11 @@ export const CreateCampaign = (wrikeToken, params, fastify) => {
       const {
         spaceName,
         folderId,
-        listOfFolderBlueprintId,
+        campaignBlueprintId,
         listOfChannelBlueprintId,
         wrikeCampaign,
       } = params;
       let customFields = [];
-      let parentFolderId = "";
 
       // // Get Custom Field Ids
       // const customFieldsData = await GetResponse(
@@ -50,37 +51,30 @@ export const CreateCampaign = (wrikeToken, params, fastify) => {
       // }
 
       // Iterating task blueprint id
-      for (let i = 0; i < listOfFolderBlueprintId.length; i++) {
-        const folderBlueprintId = listOfFolderBlueprintId[i];
-        if (!folderBlueprintId) {
-          return reject({ message: "Invalid folderblueprint Id" });
+
+      // Clone folder blueprint
+      const folderBlueprintData = await GetResponse(
+        `${process.env.WRIKE_ENDPOINT}/folder_blueprints/${campaignBlueprintId}/launch_async`,
+        "POST",
+        {
+          "content-type": "application/json",
+          Authorization: `Bearer ${wrikeToken}`,
+        },
+        {
+          parent: folderId,
+          title: wrikeCampaign?.campaignName,
         }
+      );
 
-        // Clone folder blueprint
-        const folderBlueprintData = await GetResponse(
-          `${process.env.WRIKE_ENDPOINT}/folder_blueprints/${folderBlueprintId?.id}/launch_async`,
-          "POST",
-          {
-            "content-type": "application/json",
-            Authorization: `Bearer ${wrikeToken}`,
-          },
-          {
-            parent: parentFolderId || folderId,
-            title: folderBlueprintId?.title,
-          }
-        );
-
-        // Sending error response
-        if (folderBlueprintData?.errorDescription) {
-          return reject(folderBlueprintData);
-        }
-
-        if (!parentFolderId)
-          parentFolderId = await getFolderParentId(
-            folderBlueprintData,
-            wrikeToken
-          );
+      // Sending error response
+      if (folderBlueprintData?.errorDescription) {
+        return reject(folderBlueprintData);
       }
+
+      const parentFolderId = await getFolderParentId(
+        folderBlueprintData,
+        wrikeToken
+      );
 
       // Constructing CF values
       await Promise.all(
@@ -131,7 +125,7 @@ export const CreateCampaign = (wrikeToken, params, fastify) => {
             Authorization: `Bearer ${wrikeToken}`,
           },
           {
-            parentId: folderId,
+            parentId: parentFolderId,
             title: wrikeCampaign?.campaignName,
           }
         );
@@ -164,7 +158,7 @@ export const CreateCampaign = (wrikeToken, params, fastify) => {
           ccuid: wrikeCampaign?.ccuid,
           customFields: {},
           listOfTaskIds: listOfChannelBlueprintId,
-          listOfChannelIds: listOfFolderBlueprintId,
+          listOfChannelIds: [campaignBlueprintId],
           wrikev2id: wrikeCampaign?.wrikev2id,
           wrikev3id: wrikeCampaign?.wrikev3id,
           wrikePermalink: wrikeCampaign?.wrikePermalink,
@@ -196,6 +190,31 @@ const getFolderParentId = (folderData, wrikeToken) => {
 };
 
 const checkFolderStatus = (jobId, wrikeToken) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // Cloning task blueprint
+      const jobStatus = await GetResponse(
+        `${process.env.WRIKE_ENDPOINT}/async_job/${jobId}`,
+        "GET",
+        {
+          "content-type": "application/json",
+          Authorization: `Bearer ${wrikeToken}`,
+        }
+      );
+
+      // Sending task blueprint error response
+      if (jobStatus?.errorDescription) {
+        return reject(jobStatus);
+      }
+
+      resolve(jobStatus?.data?.[0]);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const getChannelTitles = () => {
   return new Promise(async (resolve, reject) => {
     try {
       // Cloning task blueprint

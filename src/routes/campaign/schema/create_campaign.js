@@ -5,14 +5,14 @@ export const CreateCampaignSchema = {
       required: [
         "spaceName",
         "folderId",
-        "listOfFolderBlueprintId",
+        "campaignBlueprintId",
         "listOfChannelBlueprintId",
         "wrikeCampaign",
       ],
       properties: {
         spaceName: { type: "string" },
         folderId: { type: "string" },
-        listOfFolderBlueprintId: { type: "array" },
+        campaignBlueprintId: { type: "string" },
         listOfChannelBlueprintId: { type: "array" },
         wrikeCampaign: { type: "object" },
       },
