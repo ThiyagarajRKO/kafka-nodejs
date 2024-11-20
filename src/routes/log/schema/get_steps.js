@@ -2,9 +2,9 @@ export const GetStepSchema = {
   schema: {
     query: {
       type: "object",
-      required: ["requestId"],
+      required: ["request_id"],
       properties: {
-        requestId: { type: "string" },
+        request_id: { type: "string" },
       },
     },
   },

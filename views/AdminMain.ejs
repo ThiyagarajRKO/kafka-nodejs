@@ -129,12 +129,12 @@
         <!-- sidebar-search -->
         <div class="sidebar-body">
           <nav class="nav-sidebar">
-            <li class="nav-item active">
+            <li class="nav-item">
               <a id="dashboard" href="" class="nav-link"
                 ><i data-feather="package"></i><span>Dashboard</span></a
               >
             </li>
-            <li class="nav-item">
+            <li class="nav-item active">
               <a id="log_report" href="" class="nav-link"
                 ><i data-feather="file-text"></i><span>Log Report</span></a
               >
@@ -243,10 +243,12 @@
 
       $("#logout").on("click", App.logout);
 
+      loadIframe("/LogReport");
+
       // Dashboard navigation
-      // $("#dashboard").on("click", function () {
-      loadIframe("/Dashboard");
-      // });
+      $("#dashboard").on("click", function () {
+        loadIframe("/Dashboard");
+      });
 
       // Audit Logs navigation
       $("#log_report").on("click", function () {

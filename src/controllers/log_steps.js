@@ -32,7 +32,7 @@ export const Insert = async (log_data) => {
   });
 };
 
-export const Get = ({ request_id, start = 0, length = 20 }) => {
+export const GetAll = ({ request_id, start = 0, length = 20 }) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (!request_id) {
