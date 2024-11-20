@@ -39,7 +39,7 @@ export const GetAll = ({ request_id, start = 0, length = 20 }) => {
         return reject({ message: "Request ID must not be empty" });
       }
 
-      const inventories = await models.LogSteps.findAndCountAll({
+      const log_data = await models.LogSteps.findAndCountAll({
         where: {
           is_active: true,
         },
@@ -48,7 +48,7 @@ export const GetAll = ({ request_id, start = 0, length = 20 }) => {
         order: [["created_at", "desc"]],
       });
 
-      resolve(inventories);
+      resolve(log_data);
     } catch (err) {
       reject(err);
     }

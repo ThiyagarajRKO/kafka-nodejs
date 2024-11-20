@@ -1,4 +1,5 @@
 import { LogRequests } from "../../models";
+import { Op } from "sequelize";
 
 export const Insert = async (log_data) => {
   return new Promise(async (resolve, reject) => {

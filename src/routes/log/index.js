@@ -16,8 +16,6 @@ export const logRoute = (fastify, opts, done) => {
         data: result?.data,
       });
     } catch (err) {
-      logStep(requestId, "Error", err?.message, "Process End");
-
       reply.code(err?.statusCode || 400).send({
         success: false,
         message: err?.message || err,
