@@ -5,23 +5,26 @@ import { GetCampaign } from "./handlers/get_campaign";
 import { CreateCampaignSchema } from "./schema/create_campaign";
 import { GetCampaignSchema } from "./schema/get_campaign";
 
-import { logRequest, logStep } from "../../utils/logger";
+import { LogRequests } from "../../controllers";
 
 export const campaignRoute = (fastify, opts, done) => {
   fastify.post("/", CreateCampaignSchema, async (req, reply) => {
     try {
       const { method, url } = req;
-      const requestId = await logRequest({
+      const logRequestData = await LogRequests.Insert({
         method,
         url,
         statusCode: null,
-        input: req?.body,
+        source_ip: req.socket.remoteAddress,
+        user_agent: req.headers["user-agent"],
+        platform: req.headers["sec-ch-ua-platform"]?.replaceAll('"', ""),
+        is_active: true,
       });
 
       const result = await CreateCampaign(
         req?.token,
         req.body,
-        requestId,
+        logRequestData?.id,
         fastify
       );
 
@@ -31,8 +34,6 @@ export const campaignRoute = (fastify, opts, done) => {
         data: result?.data,
       });
     } catch (err) {
-      logStep(requestId, "Error", err?.message, "Process End");
-
       reply.code(err?.statusCode || 400).send({
         success: false,
         message: err?.message || err,

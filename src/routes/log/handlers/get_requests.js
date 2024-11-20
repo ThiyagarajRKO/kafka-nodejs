@@ -1,67 +1,10 @@
 import { GetResponse } from "../../../utils/node-fetch";
-import { LogSteps } from "../../../controllers";
+import { logStep } from "../../../utils/logger";
 
-const customFieldsMeta = {
-  "Campaign Name*": { id: "IEABCEFLJUAEF4AO", key: "campaignName" },
-  "Campaign Objective*": { id: "IEABCEFLJUAEF4B7", key: "campaignObjective" },
-  "Campaign Start Date*": { id: "IEABCEFLJUAEF4BI", key: "campaignStartDate" },
-  "Campaign End Date*": { id: "IEABCEFLJUAEF4BJ", key: "campaignEndDate" },
-  "Biddable Nonbiddable*": { id: "", key: "biddableNonbiddable" },
-  "Currency*": { id: "IEABCEFLJUAEGPM6", key: "currency" },
-  "Campaign Budget*": { id: "IEABCEFLJUAEGZFP", key: "campaignBudget" },
-  "Requestor Market*": { id: "", key: "requestorMarket" },
-  "Agency*": { id: "IEABCEFLJUAEF4AI", key: "agency" },
-  "Client*": { id: "IEABCEFLJUAEF4AK", key: "client" },
-  "Debtor*": { id: "IEABCEFLJUAEGGC3", key: "debtor" },
-  "Brand*": { id: "IEABCEFLJUAEF4AJ", key: "brand" },
-  "CSSID*": { id: "IEABCEFLJUAGCS2I", key: "cssid" },
-  "CCUID*": { id: "IEABCEFLJUAGCS2J", key: "ccuid" },
-};
-
-let channelTitles = {};
-
-export const CreateCampaign = (wrikeToken, params, request_id, fastify) => {
+export const GetRequests = ({ start = 0, length = 10 }, fastify) => {
   return new Promise(async (resolve, reject) => {
     try {
-      if (!wrikeToken) {
-        return reject({ message: "Invalid auth token!" });
-      }
-
-      // Variable Declaration
-      const {
-        spaceName,
-        folderId,
-        campaignBlueprintId,
-        listOfChannelBlueprintId,
-        wrikeCampaign,
-      } = params;
-      let customFields = [];
-
-      if (request_id)
-        LogSteps.Insert({
-          request_id,
-          log_type: "Info",
-          error_message: "",
-          step_name: "Start",
-          input: params,
-          is_active: true,
-        });
-
-      // // Get Custom Field Ids
-      // const customFieldsData = await GetResponse(
-      //   `${process.env.WRIKE_ENDPOINT}/customfields`,
-      //   "GET",
-      //   {
-      //     "content-type": "application/json",
-      //     Authorization: `Bearer ${wrikeToken}`,
-      //   }
-      // );
-
-      // if (!customFieldsData || customFieldsData?.data?.length == 0) {
-      //   return reject({ message: "Failed to fetch custom field ids!" });
-      // }
-
-      // Iterating task blueprint id
+      if (requestId) logStep(requestId, "Info", "", "Start", params);
 
       // Clone folder blueprint
       const folderBlueprintData = await GetResponse(
@@ -77,18 +20,18 @@ export const CreateCampaign = (wrikeToken, params, request_id, fastify) => {
         }
       );
 
-      if (request_id)
-        LogSteps.Insert({
-          request_id,
-          log_type: folderBlueprintData?.errorDescription ? "Error" : "Info",
-          error_message: "",
-          step_name: "Folder Blueprint",
-          input: {
+      if (requestId)
+        logStep(
+          requestId,
+          folderBlueprintData?.errorDescription ? "Error" : "Info",
+          "",
+          "Folder Blueprint",
+          {
             parent: folderId,
             title: wrikeCampaign?.campaignName,
           },
-          output: folderBlueprintData,
-        });
+          folderBlueprintData
+        );
 
       // Sending error response
       if (folderBlueprintData?.errorDescription) {
@@ -96,7 +39,7 @@ export const CreateCampaign = (wrikeToken, params, request_id, fastify) => {
       }
 
       const parentFolderId = await getFolderParentId(
-        request_id,
+        requestId,
         folderBlueprintData,
         wrikeToken
       );
@@ -127,18 +70,18 @@ export const CreateCampaign = (wrikeToken, params, request_id, fastify) => {
           customFields,
         }
       );
-      if (request_id)
-        LogSteps.Insert({
-          request_id,
-          log_type: "Info",
-          error_message: "",
-          step_name: "Get Folder",
-          input: {
+      if (requestId)
+        logStep(
+          requestId,
+          "Info",
+          "",
+          "Get Folder",
+          {
             description: wrikeCampaign?.campaignDescription,
             customFields,
           },
-          output: folderUpdatedResp,
-        });
+          folderUpdatedResp
+        );
 
       // Sending folder update error response
       if (folderUpdatedResp?.errorDescription) {
@@ -146,11 +89,7 @@ export const CreateCampaign = (wrikeToken, params, request_id, fastify) => {
       }
 
       if (listOfChannelBlueprintId.length > 0)
-        await getChannelTitles(
-          request_id,
-          wrikeToken,
-          listOfChannelBlueprintId
-        );
+        await getChannelTitles(requestId, wrikeToken, listOfChannelBlueprintId);
 
       // Iterating task blueprint id
       for (let i = 0; i < listOfChannelBlueprintId.length; i++) {
@@ -175,19 +114,19 @@ export const CreateCampaign = (wrikeToken, params, request_id, fastify) => {
           }
         );
 
-        if (request_id)
-          LogSteps.Insert({
-            request_id,
-            log_type: taskBlueprintData?.errorDescription ? "Error" : "Info",
-            error_message: "",
-            step_name: "Task Bluprint",
-            input: {
+        if (requestId)
+          logStep(
+            requestId,
+            taskBlueprintData?.errorDescription ? "Error" : "Info",
+            "",
+            "Task Bluprint",
+            {
               parentId: parentFolderId,
               title:
                 channelTitles[taskBlueprintId] || wrikeCampaign?.campaignName,
             },
-            output: taskBlueprintData,
-          });
+            taskBlueprintData
+          );
 
         // Sending task blueprint error response
         if (taskBlueprintData?.errorDescription) {
@@ -220,15 +159,7 @@ export const CreateCampaign = (wrikeToken, params, request_id, fastify) => {
         wrikePermalink: wrikeCampaign?.wrikePermalink,
       };
 
-      if (request_id)
-        LogSteps.Insert({
-          request_id,
-          log_type: "Info",
-          error_message: "",
-          step_name: "End",
-          input: {},
-          output: data,
-        });
+      if (requestId) logStep(requestId, "Info", "", "End", {}, data);
 
       // Sending final response
       resolve({
@@ -242,27 +173,27 @@ export const CreateCampaign = (wrikeToken, params, request_id, fastify) => {
   });
 };
 
-const getFolderParentId = (request_id, folderData, wrikeToken) => {
+const getFolderParentId = (requestId, folderData, wrikeToken) => {
   return new Promise(async (resolve, reject) => {
     try {
       let getStatus = {};
       while (getStatus?.status != "Completed") {
         getStatus = await checkFolderStatus(
-          request_id,
+          requestId,
           folderData?.data[0]?.id,
           wrikeToken
         );
       }
 
-      if (request_id)
-        LogSteps.Insert({
-          request_id,
-          log_type: getStatus?.errorDescription ? "Error" : "Info",
-          error_message: "",
-          step_name: "Async Job Status",
-          input: {},
-          output: getStatus,
-        });
+      if (requestId)
+        logStep(
+          requestId,
+          getStatus?.errorDescription ? "Error" : "Info",
+          "",
+          "Async Job Status",
+          {},
+          getStatus
+        );
 
       resolve(getStatus?.result?.folderId);
     } catch (error) {
@@ -271,7 +202,7 @@ const getFolderParentId = (request_id, folderData, wrikeToken) => {
   });
 };
 
-const checkFolderStatus = (request_id, jobId, wrikeToken) => {
+const checkFolderStatus = (requestId, jobId, wrikeToken) => {
   return new Promise(async (resolve, reject) => {
     try {
       // Cloning task blueprint
@@ -286,34 +217,22 @@ const checkFolderStatus = (request_id, jobId, wrikeToken) => {
 
       // Sending task blueprint error response
       if (jobStatus?.errorDescription) {
-        if (request_id)
-          LogSteps.Insert({
-            request_id,
-            log_type: "Error",
-            error_message: "",
-            step_name: "Async Job Status",
-            input: {},
-            output: jobStatus,
-          });
+        if (requestId)
+          logStep(requestId, "Error", "", "Async Job Status", {}, jobStatus);
 
         return reject(jobStatus);
       }
 
       resolve(jobStatus?.data?.[0]);
     } catch (error) {
-      if (request_id)
-        LogSteps.Insert({
-          request_id,
-          log_type: "Error",
-          error_message: error?.message,
-          step_name: "Async Job Status",
-        });
+      if (requestId)
+        logStep(requestId, "Error", error?.message, "Async Job Status");
       reject(error);
     }
   });
 };
 
-const getChannelTitles = (request_id, wrikeToken, listOfChannelBlueprintId) => {
+const getChannelTitles = (requestId, wrikeToken, listOfChannelBlueprintId) => {
   return new Promise(async (resolve, reject) => {
     try {
       // Cloning task blueprint
@@ -328,15 +247,15 @@ const getChannelTitles = (request_id, wrikeToken, listOfChannelBlueprintId) => {
 
       // Sending task blueprint error response
       if (jobStatus?.errorDescription) {
-        if (request_id)
-          LogSteps.Insert({
-            request_id,
-            log_type: "Error",
-            error_message: "",
-            step_name: "Get Task Template Titles",
-            input: {},
-            output: jobStatus?.errorDescription,
-          });
+        if (requestId)
+          logStep(
+            requestId,
+            "Error",
+            "",
+            "Get Task Template Titles",
+            {},
+            jobStatus?.errorDescription
+          );
         return reject(jobStatus);
       }
 
@@ -348,25 +267,20 @@ const getChannelTitles = (request_id, wrikeToken, listOfChannelBlueprintId) => {
         })
       );
 
-      if (request_id)
-        LogSteps.Insert({
-          request_id,
-          log_type: "Info",
-          error_message: "",
-          step_name: "Get Task Template Titles",
-          input: {},
-          output: channelTitles,
-        });
+      if (requestId)
+        logStep(
+          requestId,
+          "Info",
+          "",
+          "Get Task Template Titles",
+          {},
+          channelTitles
+        );
 
       resolve();
     } catch (error) {
-      if (request_id)
-        LogSteps.Insert({
-          request_id,
-          log_type: "Error",
-          error_message: error?.message,
-          step_name: "Get Task Template Titles",
-        });
+      if (requestId)
+        logStep(requestId, "Error", error?.message, "Get Task Template Titles");
       reject(error);
     }
   });

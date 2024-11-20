@@ -10,6 +10,9 @@ export const PublicRouters = (fastify, opts, done) => {
   //   fastify.register(usersRoute, { prefix: "/auth" });
 
   //   fastify.register(assetsRoutes, { prefix: "/asset" });
+
+  fastify.register(campaignRoute, { prefix: "/log" });
+
   done();
 };
 
