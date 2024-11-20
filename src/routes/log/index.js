@@ -1,5 +1,5 @@
 import { GetRequests } from "./handlers/get_requests";
-// import { GetSteps } from "./handlers/get_steps";
+import { GetSteps } from "./handlers/get_steps";
 
 // Schema
 import { GetRequestSchema } from "./schema/get_requests";
