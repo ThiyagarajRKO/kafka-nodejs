@@ -3,7 +3,20 @@ const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
   class LogRequests extends Model {
-    static associate(models) {}
+    static associate(models) {
+      LogRequests.belongsTo(models.UserProfiles, {
+        as: "creator",
+        foreignKey: "created_by",
+        onUpdate: "CASCADE",
+        onDelete: "RESTRICT",
+      });
+      LogRequests.belongsTo(models.UserProfiles, {
+        as: "deleter",
+        foreignKey: "deleted_by",
+        onUpdate: "CASCADE",
+        onDelete: "RESTRICT",
+      });
+    }
   }
   LogRequests.init(
     {
@@ -11,6 +24,10 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
+      },
+      action_name: {
+        type: DataTypes.STRING(50),
+        allowNull: false,
       },
       method: {
         type: DataTypes.STRING(10),

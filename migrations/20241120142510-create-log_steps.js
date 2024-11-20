@@ -45,6 +45,24 @@ module.exports = {
       deleted_at: {
         type: Sequelize.DATE,
       },
+      created_by: {
+        type: Sequelize.UUID,
+        onDelete: "RESTRICT",
+        onUpdate: "CASCADE",
+        references: {
+          model: { tableName: "user_profiles" },
+          key: "id",
+        },
+      },
+      deleted_by: {
+        type: Sequelize.UUID,
+        onDelete: "RESTRICT",
+        onUpdate: "CASCADE",
+        references: {
+          model: { tableName: "user_profiles" },
+          key: "id",
+        },
+      },
     });
   },
   down: async (queryInterface, Sequelize) => {

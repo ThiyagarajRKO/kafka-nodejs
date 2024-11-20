@@ -1,12 +1,12 @@
 import { GetRequests } from "./handlers/get_requests";
-import { GetSteps } from "./handlers/get_steps";
+// import { GetSteps } from "./handlers/get_steps";
 
 // Schema
 import { GetRequestSchema } from "./schema/get_requests";
 import { GetStepSchema } from "./schema/get_steps";
 
 export const logRoute = (fastify, opts, done) => {
-  fastify.get("/request", GetRequestSchema, async (req, reply) => {
+  fastify.get("/api", GetRequestSchema, async (req, reply) => {
     try {
       const result = await GetRequests(req.query, fastify);
 

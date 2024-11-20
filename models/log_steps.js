@@ -3,6 +3,18 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class LogSteps extends Model {
     static associate(models) {
+      LogSteps.belongsTo(models.UserProfiles, {
+        as: "creator",
+        foreignKey: "created_by",
+        onUpdate: "CASCADE",
+        onDelete: "RESTRICT",
+      });
+      LogSteps.belongsTo(models.UserProfiles, {
+        as: "deleter",
+        foreignKey: "deleted_by",
+        onUpdate: "CASCADE",
+        onDelete: "RESTRICT",
+      });
       LogSteps.belongsTo(models.LogRequests, {
         foreignKey: "request_id",
         onUpdate: "CASCADE",

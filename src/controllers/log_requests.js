@@ -32,12 +32,20 @@ export const Insert = async (log_data) => {
   });
 };
 
-export const GetAll = ({ start = 0, length = 10 }) => {
+export const GetAll = ({ start = 0, length = 10, search }) => {
   return new Promise(async (resolve, reject) => {
     try {
       let where = {
         is_active: true,
       };
+
+      if (search) {
+        where[Op.or] = [
+          { action_name: { [Op.iLike]: `%${search}%` } },
+          { source_ip: { [Op.iLike]: `%${search}%` } },
+          { url: { [Op.iLike]: `%${search}%` } },
+        ];
+      }
 
       const log_data = await LogRequests.findAndCountAll({
         where,

@@ -7,6 +7,10 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
+      action_name: {
+        type: Sequelize.STRING(50),
+        allowNull: false,
+      },
       method: {
         type: Sequelize.STRING(10),
         allowNull: false,
@@ -37,6 +41,24 @@ module.exports = {
       },
       deleted_at: {
         type: Sequelize.DATE,
+      },
+      created_by: {
+        type: Sequelize.UUID,
+        onDelete: "RESTRICT",
+        onUpdate: "CASCADE",
+        references: {
+          model: { tableName: "user_profiles" },
+          key: "id",
+        },
+      },
+      deleted_by: {
+        type: Sequelize.UUID,
+        onDelete: "RESTRICT",
+        onUpdate: "CASCADE",
+        references: {
+          model: { tableName: "user_profiles" },
+          key: "id",
+        },
       },
     });
   },

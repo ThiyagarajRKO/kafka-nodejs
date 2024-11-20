@@ -11,7 +11,9 @@ export const campaignRoute = (fastify, opts, done) => {
   fastify.post("/", CreateCampaignSchema, async (req, reply) => {
     try {
       const { method, url } = req;
+
       const logRequestData = await LogRequests.Insert({
+        action_name: "Create Campaign",
         method,
         url,
         statusCode: null,

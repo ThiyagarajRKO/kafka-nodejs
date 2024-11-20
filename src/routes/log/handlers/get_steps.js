@@ -1,22 +1,5 @@
 import { GetResponse } from "../../../utils/node-fetch";
 
-const customFieldsMeta = {
-  "Campaign Name*": { id: "IEABCEFLJUAEF4AO", key: "campaignName" },
-  "Campaign Objective*": { id: "IEABCEFLJUAEF4B7", key: "campaignObjective" },
-  "Campaign Start Date*": { id: "IEABCEFLJUAEF4BI", key: "campaignStartDate" },
-  "Campaign End Date*": { id: "IEABCEFLJUAEF4BJ", key: "campaignEndDate" },
-  "Biddable Nonbiddable*": { id: "", key: "biddableNonbiddable" },
-  "Currency*": { id: "IEABCEFLJUAEGPM6", key: "currency" },
-  "Campaign Budget*": { id: "IEABCEFLJUAEGZFP", key: "campaignBudget" },
-  "Requestor Market*": { id: "", key: "requestorMarket" },
-  "Agency*": { id: "IEABCEFLJUAEF4AI", key: "agency" },
-  "Client*": { id: "IEABCEFLJUAEF4AK", key: "client" },
-  "Debtor*": { id: "IEABCEFLJUAEGGC3", key: "debtor" },
-  "Brand*": { id: "IEABCEFLJUAEF4AJ", key: "brand" },
-  "CSSID*": { id: "IEABCEFLJUAGCS2I", key: "cssid" },
-  "CCUID*": { id: "IEABCEFLJUAGCS2J", key: "ccuid" },
-};
-
 export const GetSteps = (wrikeToken, params, fastify) => {
   return new Promise(async (resolve, reject) => {
     try {

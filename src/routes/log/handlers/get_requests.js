@@ -1,169 +1,22 @@
-import { GetResponse } from "../../../utils/node-fetch";
-import { logStep } from "../../../utils/logger";
+import { LogRequests } from "../../../controllers";
 
-export const GetRequests = ({ start = 0, length = 10 }, fastify) => {
+export const GetRequests = (
+  { start = 0, length = 10, "search[value]": search },
+  fastify
+) => {
   return new Promise(async (resolve, reject) => {
     try {
-      if (requestId) logStep(requestId, "Info", "", "Start", params);
+      const data = await LogRequests.GetAll({ start, length, search });
 
-      // Clone folder blueprint
-      const folderBlueprintData = await GetResponse(
-        `${process.env.WRIKE_ENDPOINT}/folder_blueprints/${campaignBlueprintId}/launch_async`,
-        "POST",
-        {
-          "content-type": "application/json",
-          Authorization: `Bearer ${wrikeToken}`,
-        },
-        {
-          parent: folderId,
-          title: wrikeCampaign?.campaignName,
-        }
-      );
-
-      if (requestId)
-        logStep(
-          requestId,
-          folderBlueprintData?.errorDescription ? "Error" : "Info",
-          "",
-          "Folder Blueprint",
-          {
-            parent: folderId,
-            title: wrikeCampaign?.campaignName,
-          },
-          folderBlueprintData
-        );
-
-      // Sending error response
-      if (folderBlueprintData?.errorDescription) {
-        return reject(folderBlueprintData);
+      if (!data) {
+        return reject({
+          statusCode: 420,
+          message: "No data found!",
+        });
       }
-
-      const parentFolderId = await getFolderParentId(
-        requestId,
-        folderBlueprintData,
-        wrikeToken
-      );
-
-      // Constructing CF values
-      await Promise.all(
-        Object.keys(customFieldsMeta)?.map((data) => {
-          const currentData = customFieldsMeta[data];
-          if (currentData?.id) {
-            customFields.push({
-              id: currentData?.id,
-              value: wrikeCampaign[currentData?.key],
-            });
-          }
-        })
-      );
-
-      // Modifing folder data
-      const folderUpdatedResp = await GetResponse(
-        `${process.env.WRIKE_ENDPOINT}/folders/${folderId}`,
-        "PUT",
-        {
-          "content-type": "application/json",
-          Authorization: `Bearer ${wrikeToken}`,
-        },
-        {
-          description: wrikeCampaign?.campaignDescription,
-          customFields,
-        }
-      );
-      if (requestId)
-        logStep(
-          requestId,
-          "Info",
-          "",
-          "Get Folder",
-          {
-            description: wrikeCampaign?.campaignDescription,
-            customFields,
-          },
-          folderUpdatedResp
-        );
-
-      // Sending folder update error response
-      if (folderUpdatedResp?.errorDescription) {
-        return reject(folderUpdatedResp);
-      }
-
-      if (listOfChannelBlueprintId.length > 0)
-        await getChannelTitles(requestId, wrikeToken, listOfChannelBlueprintId);
-
-      // Iterating task blueprint id
-      for (let i = 0; i < listOfChannelBlueprintId.length; i++) {
-        const taskBlueprintId = listOfChannelBlueprintId[i];
-
-        if (!taskBlueprintId) {
-          return reject({ message: "Invalid task blueprint Id" });
-        }
-
-        // Cloning task blueprint
-        const taskBlueprintData = await GetResponse(
-          `${process.env.WRIKE_ENDPOINT}/task_blueprints/${taskBlueprintId}/launch_async`,
-          "POST",
-          {
-            "content-type": "application/json",
-            Authorization: `Bearer ${wrikeToken}`,
-          },
-          {
-            parentId: parentFolderId,
-            title:
-              channelTitles[taskBlueprintId] || wrikeCampaign?.campaignName,
-          }
-        );
-
-        if (requestId)
-          logStep(
-            requestId,
-            taskBlueprintData?.errorDescription ? "Error" : "Info",
-            "",
-            "Task Bluprint",
-            {
-              parentId: parentFolderId,
-              title:
-                channelTitles[taskBlueprintId] || wrikeCampaign?.campaignName,
-            },
-            taskBlueprintData
-          );
-
-        // Sending task blueprint error response
-        if (taskBlueprintData?.errorDescription) {
-          return reject(taskBlueprintData);
-        }
-      }
-
-      const data = {
-        campaignName: wrikeCampaign?.campaignName,
-        campaignDescription: wrikeCampaign?.campaignDescription,
-        campaignObjective: wrikeCampaign?.campaignObjective,
-        campaignStartDate: wrikeCampaign?.campaignStartDate,
-        campaignEndDate: wrikeCampaign?.campaignEndDate,
-        biddableNonbiddable: wrikeCampaign?.biddableNonbiddable,
-        currency: wrikeCampaign?.currency,
-        campaignBudget: wrikeCampaign?.campaignBudget,
-        requestorMarket: wrikeCampaign?.requestorMarket,
-        agency: wrikeCampaign?.agency,
-        client: wrikeCampaign?.client,
-        debtor: wrikeCampaign?.debtor,
-        brand: wrikeCampaign?.brand,
-        folderPath: wrikeCampaign?.folderPath,
-        cssid: wrikeCampaign?.cssid,
-        ccuid: wrikeCampaign?.ccuid,
-        customFields: {},
-        listOfTaskIds: listOfChannelBlueprintId,
-        listOfChannelIds: [campaignBlueprintId],
-        wrikev2id: wrikeCampaign?.wrikev2id,
-        wrikev3id: wrikeCampaign?.wrikev3id,
-        wrikePermalink: wrikeCampaign?.wrikePermalink,
-      };
-
-      if (requestId) logStep(requestId, "Info", "", "End", {}, data);
 
       // Sending final response
       resolve({
-        message: "Campaign has been created successfully",
         data,
       });
     } catch (err) {
