@@ -906,37 +906,39 @@
         return day + "-" + month + "-" + dateTime.getFullYear() + " " + strTime;
       }
 
-      // ---------------------------------------------------------
-      // ----------------------- Dashboard -----------------------
-      // ---------------------------------------------------------
+      // // ---------------------------------------------------------
+      // // ----------------------- Dashboard -----------------------
+      // // ---------------------------------------------------------
 
-      // Loading Charts
-      loadProcurementSpendBySuppliersChart(
-        "days",
-        $("#procurementSpendChartFilter").val()
-      );
-      loadProcurementByDateChart(
-        "days",
-        $("#procurementAnalysisByDateChartFilter").val(),
-        null,
-        null,
-        "price"
-      );
+      // // Loading Charts
+      // loadProcurementSpendBySuppliersChart(
+      //   "days",
+      //   $("#procurementSpendChartFilter").val()
+      // );
+      // loadProcurementByDateChart(
+      //   "days",
+      //   $("#procurementAnalysisByDateChartFilter").val(),
+      //   null,
+      //   null,
+      //   "price"
+      // );
 
-      loadProcurementAgeByProductsChart(
-        "days",
-        $("#procurementAgeByProductsFilter").val(),
-        null,
-        null
-      );
+      // loadProcurementAgeByProductsChart(
+      //   "days",
+      //   $("#procurementAgeByProductsFilter").val(),
+      //   null,
+      //   null
+      // );
 
-      loadSupplierPerformanceScorecardChart(
-        "days",
-        $("#supplierPerformanceScorecardChartFilter").val(),
-        null,
-        null,
-        "price"
-      );
+      // loadSupplierPerformanceScorecardChart(
+      //   "days",
+      //   $("#supplierPerformanceScorecardChartFilter").val(),
+      //   null,
+      //   null,
+      //   "price"
+      // );
+
+      toastr["info"]("Feature comming soon...");
 
       // Chart Filters
       $(document).on("change", "#procurementSpendChartFilter", (e) => {
