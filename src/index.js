@@ -53,11 +53,11 @@ fastify.addHook("onError", async (request, reply, error) => {
 
 fastify.addHook("onSend", function (request, reply, payload, done) {
   try {
-    if (!reply.sent) {
+    if (!reply.sent && payload) {
       done(null, payload);
     }
   } catch (err) {
-    // console.error(new Date().toISOString() + " : " + err?.message || err);
+    console.error(new Date().toISOString() + " : " + err?.message || err);
   }
 });
 
