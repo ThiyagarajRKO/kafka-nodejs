@@ -41,11 +41,12 @@ export const GetAll = ({ request_id, start = 0, length = 20 }) => {
 
       const log_data = await models.LogSteps.findAndCountAll({
         where: {
+          request_id,
           is_active: true,
         },
         offset: start,
         limit: length,
-        order: [["created_at", "desc"]],
+        order: [["created_at", "asc"]],
       });
 
       resolve(log_data);

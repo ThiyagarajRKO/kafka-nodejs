@@ -88,6 +88,7 @@ export const CreateCampaign = (wrikeToken, params, request_id, fastify) => {
             title: wrikeCampaign?.campaignName,
           },
           output: folderBlueprintData,
+          is_active: true,
         });
 
       // Sending error response
@@ -138,6 +139,7 @@ export const CreateCampaign = (wrikeToken, params, request_id, fastify) => {
             customFields,
           },
           output: folderUpdatedResp,
+          is_active: true,
         });
 
       // Sending folder update error response
@@ -187,6 +189,7 @@ export const CreateCampaign = (wrikeToken, params, request_id, fastify) => {
                 channelTitles[taskBlueprintId] || wrikeCampaign?.campaignName,
             },
             output: taskBlueprintData,
+            is_active: true,
           });
 
         // Sending task blueprint error response
@@ -226,8 +229,8 @@ export const CreateCampaign = (wrikeToken, params, request_id, fastify) => {
           log_type: "Info",
           error_message: "",
           step_name: "End",
-          input: {},
           output: data,
+          is_active: true,
         });
 
       // Sending final response
@@ -260,8 +263,8 @@ const getFolderParentId = (request_id, folderData, wrikeToken) => {
           log_type: getStatus?.errorDescription ? "Error" : "Info",
           error_message: "",
           step_name: "Async Job Status",
-          input: {},
           output: getStatus,
+          is_active: true,
         });
 
       resolve(getStatus?.result?.folderId);
@@ -292,8 +295,8 @@ const checkFolderStatus = (request_id, jobId, wrikeToken) => {
             log_type: "Error",
             error_message: "",
             step_name: "Async Job Status",
-            input: {},
             output: jobStatus,
+            is_active: true,
           });
 
         return reject(jobStatus);
@@ -307,6 +310,7 @@ const checkFolderStatus = (request_id, jobId, wrikeToken) => {
           log_type: "Error",
           error_message: error?.message,
           step_name: "Async Job Status",
+          is_active: true,
         });
       reject(error);
     }
@@ -334,8 +338,8 @@ const getChannelTitles = (request_id, wrikeToken, listOfChannelBlueprintId) => {
             log_type: "Error",
             error_message: "",
             step_name: "Get Task Template Titles",
-            input: {},
             output: jobStatus?.errorDescription,
+            is_active: true,
           });
         return reject(jobStatus);
       }
@@ -354,8 +358,8 @@ const getChannelTitles = (request_id, wrikeToken, listOfChannelBlueprintId) => {
           log_type: "Info",
           error_message: "",
           step_name: "Get Task Template Titles",
-          input: {},
           output: channelTitles,
+          is_active: true,
         });
 
       resolve();
@@ -366,6 +370,7 @@ const getChannelTitles = (request_id, wrikeToken, listOfChannelBlueprintId) => {
           log_type: "Error",
           error_message: error?.message,
           step_name: "Get Task Template Titles",
+          is_active: true,
         });
       reject(error);
     }

@@ -31,9 +31,11 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css?v=2"
     />
 
-    <!-- Bootstrap 
-<link href="/public/plugins/bootstrap/css/bootstrap.min.css?v=2" rel="stylesheet" />
-<script src="/public/plugins/bootstrap/js/bootstrap.min.js?v=2"></script> -->
+    <!-- Bootstrap -->
+    <link
+      href="/public/plugins/bootstrap/css/bootstrap.min.css?v=2"
+      rel="stylesheet"
+    />
 
     <!-- MDB5  -->
     <link href="/public/plugins/mdb5/css/mdb.min.css?v=2" rel="stylesheet" />
@@ -131,11 +133,62 @@
       table.dataTable th {
         text-align: left !important;
       }
+
+      .modal-header {
+        justify-content: space-between;
+      }
+
+      .slideInPanel {
+        z-index: 9999;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        right: -600px;
+        width: 400px;
+        background-color: rgba(31, 45, 62);
+        color: #e3e3e3;
+        height: 100vh;
+        /* box-shadow: 0 0 0px rgba(0, 0, 0, 0.2); */
+        transition: right 0.3s ease;
+        border-radius: 8px;
+      }
+
+      pre {
+        background-color: #f4f4f4;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-family: "Courier New", Courier, monospace;
+        overflow-x: auto; /* Handle long lines */
+      }
     </style>
   </head>
 
   <body>
     <div class="">
+      <!-- Slide-in Panel -->
+      <div id="logDetailsSlideInPanel" class="slideInPanel px-4 overflow-auto">
+        <div class="row d-flex justify-content-center">
+          <div class="col-sm-12 col-md-12 col-md-12">
+            <div class="text-center mt-4 d-flex justify-content-between">
+              <span id="logDetailsPanelHeading" class="fw-bold">Payload</span>
+              <div class="col my-auto d-flex justify-content-end">
+                <i
+                  class="fa-solid fa-circle-xmark my-auto panelClose"
+                  id="closeLogDetailsPanelBtn"
+                  style="cursor: pointer"
+                ></i>
+              </div>
+            </div>
+            <hr />
+
+            <div>
+              <pre id="logDetailsSlideData" class="text-dark"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Table Content -->
       <div class="rounded-2 d-flex justify-content-center mt-4 py-4">
         <div class="p-4 w-100">
@@ -154,9 +207,72 @@
             </thead>
           </table>
         </div>
+
+        <!-- modal-dialog-centered modal-dialog-scrollable -->
+        <!-- Modal -->
+        <div
+          id="logDetailsModal"
+          class="modal hide fade"
+          role="dialog"
+          aria-labelledby="myModalLabel"
+          data-keyboard="false"
+          data-backdrop="static"
+        >
+          <div class="modal-dialog modal-xl">
+            <!-- Modal content-->
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title">Log Details</h4>
+                <i class="close fa-solid fa-circle-xmark" data-dismiss="modal">
+                </i>
+              </div>
+              <div class="modal-body">
+                <table
+                  id="logDetailsTable"
+                  class="rounded table table-hover nowrap w-100"
+                >
+                  <thead>
+                    <tr>
+                      <th class="fw-bold">
+                        <span>Log Type</span>
+                      </th>
+                      <th class="fw-bold">
+                        <span>Created At</span>
+                      </th>
+                      <th class="fw-bold">
+                        <span>Step Name</span>
+                      </th>
+                      <th class="fw-bold">
+                        <span>Input</span>
+                      </th>
+                      <th class="fw-bold">
+                        <span>Output</span>
+                      </th>
+                      <th class="fw-bold">
+                        <span>Error Message</span>
+                      </th>
+                    </tr>
+                  </thead>
+                </table>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="close btn btn-danger"
+                  data-dismiss="modal"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Purchases Container Ends -->
       </div>
     </div>
   </body>
+
+  <script src="/public/plugins/bootstrap/js/bootstrap.min.js?v=2"></script>
 
   <script src="/public/plugins/select2/js/select2.min.js?v=2"></script>
 
@@ -248,11 +364,11 @@
             targets: [0],
             className: "text-left",
             render: function (data, type, row) {
-              return `<i class="fa-solid fa-eye view viewProcurementProducts" procurement_lot_id=${row?.id} aria-hidden="true" style="font-size:15px;color:#f07b3f" data-toggle="tooltip" data-placement="top" title="Click this button to edit this Procurement"></i>`;
+              return `<i class="fa-solid fa-eye view viewLogDetails" request_id=${row?.id} aria-hidden="true" style="font-size:15px;color:#f07b3f;cursor:pointer" data-toggle="tooltip" data-placement="top" title="Click this button to edit this Procurement"></i>`;
             },
           },
           {
-            targets: [0],
+            targets: [1],
             className: "text-left",
             render: function (data, type, row) {
               const date = new Date(row["created_at"]);
@@ -277,7 +393,8 @@
               hours = hours % 12;
               hours = hours ? hours : 12; // Handle midnight (0 hours)
               minutes = minutes < 10 ? "0" + minutes : minutes;
-              var strTime = hours + ":" + minutes + " " + ampm;
+              var strTime =
+                hours + ":" + minutes + ":" + date.getSeconds() + " " + ampm;
               var month = months[date.getMonth()];
               var day = date.getDate().toString().padStart(2, "0"); // Ensure day is always two digits
               return (
@@ -287,6 +404,164 @@
           },
         ],
       });
+
+      $(document).on("click", ".modal-header .close", () => {
+        $("#logDetailsModal").modal("hide");
+      });
+
+      $(document).on(
+        "click",
+        ".modal-header .close, .modal-footer .close",
+        () => {
+          $("#logDetailsModal").modal("hide");
+        }
+      );
+
+      $("#logDetailsModal").on("hide.bs.modal", () => {
+        closeSlidePanel();
+      });
+
+      $(document).on("click", ".viewLogDetails", (e) => {
+        $("#logDetailsModal").modal("show");
+
+        const request_id = $(e.target)
+          .closest("tr")
+          .children("td")
+          .eq(0)
+          .find("i")
+          .attr("request_id");
+
+        loadLogDetailsTableData(request_id);
+      });
+
+      function loadLogDetailsTableData(request_id) {
+        if (!request_id) {
+          return toastr["warning"]("Request ID should not be empty!");
+        }
+        $("#logDetailsTable").DataTable({
+          searching: false,
+          destroy: true,
+          responsive: false,
+          processing: true,
+          serverSide: true,
+          scrollX: true,
+          scrollCollapse: true,
+          scrollY: "40vh",
+          ordering: false,
+          ajax: {
+            type: "GET",
+            url: `/api/v1/log/step?request_id=${request_id}`,
+            error: function (xhr, error, code) {
+              $("#logDetailsTable").DataTable().destroy();
+              $("#logDetailsTable").DataTable({
+                scrollX: true,
+                ordering: false,
+              });
+
+              if (xhr["status"] == 420) {
+                toastr["warning"](xhr["responseJSON"]["message"]);
+              } else {
+                toastr["error"](xhr["responseJSON"]["message"]);
+              }
+            },
+            dataSrc: function (json) {
+              json.iTotalRecords = json.data?.rows?.length;
+              json.iTotalDisplayRecords = json.data?.count;
+
+              // Return the data to be displayed in the DataTable
+              return json?.data?.rows;
+            },
+          },
+          columns: [
+            { data: "log_type" },
+            { data: "created_at" },
+            { data: "step_name" },
+            { data: "input" },
+            { data: "output" },
+            { data: "error_message" },
+          ],
+          columnDefs: [
+            {
+              targets: [0],
+              className: "text-left fw-bold",
+              render: function (data, type, row) {
+                return `<span class="${data == "Info" ? "text-info" : "text-danger"}">${data}</span>`;
+              },
+            },
+            {
+              targets: [1],
+              className: "text-left",
+              render: function (data, type, row) {
+                const date = new Date(row["created_at"]);
+
+                var months = [
+                  "Jan",
+                  "Feb",
+                  "Mar",
+                  "Apr",
+                  "May",
+                  "Jun",
+                  "Jul",
+                  "Aug",
+                  "Sep",
+                  "Oct",
+                  "Nov",
+                  "Dec",
+                ];
+                var hours = date.getHours();
+                var minutes = date.getMinutes();
+                var ampm = hours >= 12 ? "PM" : "AM";
+                hours = hours % 12;
+                hours = hours ? hours : 12; // Handle midnight (0 hours)
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                var strTime =
+                  hours + ":" + minutes + ":" + date.getSeconds() + " " + ampm;
+                var month = months[date.getMonth()];
+                var day = date.getDate().toString().padStart(2, "0"); // Ensure day is always two digits
+                return (
+                  day + "-" + month + "-" + date.getFullYear() + " " + strTime
+                );
+              },
+            },
+            {
+              targets: [3, 4],
+              className: "text-left fw-bold",
+              render: function (data, type, row) {
+                return (
+                  data &&
+                  `<span class="text-primary log_json_data" style="text-decoration:underline;cursor:pointer" data-json='${JSON.stringify(data)}' >View</span>`
+                );
+              },
+            },
+          ],
+          drawCallback: () => {},
+        });
+      }
+
+      $(document).on("click", ".log_json_data", (e) => {
+        const data = $(e.target).attr("data-json");
+
+        if (data) {
+          const parsedData = JSON.parse(data);
+          openSlidePanel(parsedData);
+        }
+      });
+
+      $(document).on("click", "#closeLogDetailsPanelBtn", (e) => {
+        closeSlidePanel();
+      });
+
+      function openSlidePanel(data) {
+        // Opening Slide Panel
+        $("#logDetailsSlideInPanel").css("right", "0");
+
+        $("#logDetailsSlideData").text(JSON.stringify(data, null, 4));
+      }
+
+      function closeSlidePanel() {
+        // Closing Slide Panel
+        $("#logDetailsSlideInPanel").css("right", "-600px");
+      }
     });
   </script>
 </html>
