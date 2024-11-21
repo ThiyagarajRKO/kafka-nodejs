@@ -133,7 +133,7 @@ export const CreateCampaign = (wrikeToken, params, request_id, fastify) => {
           request_id,
           log_type: "Info",
           error_message: "",
-          step_name: "Get Folder",
+          step_name: "Update Folder",
           input: {
             description: wrikeCampaign?.campaignDescription,
             customFields,
