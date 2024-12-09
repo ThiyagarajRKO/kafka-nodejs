@@ -53,8 +53,10 @@ export const Offshore = (params, request_id, fastify) => {
           if (data["id"] != CustomFieldIds["CopyToChild*"]) {
             const index = Object.values(CustomFieldIds)?.indexOf(data["id"]);
             if (index >= 0) {
-              taskUpdateCustomFields[Object.keys(CustomFieldIds)[index]] =
-                data["value"];
+              taskUpdateCustomFields.push({
+                id: data["id"],
+                value: data["value"],
+              });
 
               if (data?.id == CustomFieldIds["Offshore Global Hub*"]) {
                 offshoreGlobalHub = data?.value;
@@ -181,8 +183,8 @@ const updateFolder = (request_id, folderId, folderData) => {
           log_type: folderOutput?.errorDescription ? "Error" : "Info",
           error_message: "",
           step_name: "Update Folder",
-          input: folderData,
-          output: {},
+          input: { folderId, folderData },
+          output: folderOutput,
           is_active: true,
         });
 
@@ -353,7 +355,7 @@ const updateTask = (request_id, taskIds, taskData) => {
           log_type: taskOutput?.errorDescription ? "Error" : "Info",
           error_message: "",
           step_name: "Update Task",
-          input: taskData,
+          input: { taskIds, ...taskData },
           output: {},
           is_active: true,
         });
