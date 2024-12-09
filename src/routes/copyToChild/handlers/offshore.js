@@ -29,7 +29,7 @@ export const Offshore = (params, request_id, fastify) => {
           is_active: true,
         });
 
-      updateFolder(request_id, folderId, {
+      await updateFolder(request_id, folderId, {
         customFields: [
           { id: CustomFieldIds["CopyToChild*"], value: "In Progress" },
         ],
