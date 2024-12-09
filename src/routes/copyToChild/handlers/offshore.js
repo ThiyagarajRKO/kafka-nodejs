@@ -182,7 +182,7 @@ const updateFolder = (request_id, folderId, folderData) => {
           error_message: "",
           step_name: "Update Folder",
           input: folderData,
-          output: folderOutput,
+          output: {},
           is_active: true,
         });
 
@@ -353,8 +353,8 @@ const updateTask = (request_id, taskIds, taskData) => {
           log_type: taskOutput?.errorDescription ? "Error" : "Info",
           error_message: "",
           step_name: "Update Task",
-          input: {},
-          output: taskOutput,
+          input: taskData,
+          output: {},
           is_active: true,
         });
 
