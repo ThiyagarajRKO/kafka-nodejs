@@ -31,7 +31,7 @@ export const Offshore = (params, request_id, fastify) => {
 
       updateFolder(request_id, folderId, {
         customFields: [
-          { id: CustomFieldIds["CopyToChild*"], value: "In progress" },
+          { id: CustomFieldIds["CopyToChild*"], value: "In Progress" },
         ],
       }).catch(console.log);
 
@@ -88,7 +88,7 @@ export const Offshore = (params, request_id, fastify) => {
 
       await executeTaskOperation(request_id, folderId, taskUpdateCustomFields);
 
-      updateFolder(request_id, folderId, {
+      await updateFolder(request_id, folderId, {
         customFields: [
           { id: CustomFieldIds["CopyToChild*"], value: "Completed" },
         ],
@@ -240,14 +240,6 @@ const executeTaskOperation = (
       const taskIds = await Promise.all(tasks?.data?.map((data) => data?.id));
 
       if (taskIds.length == 0 && !tasks?.nextPageToken) {
-        updateFolder(request_id, folderId, {
-          customFields: [
-            {
-              id: CustomFieldIds["CopyToChild*"],
-              value: "Completed",
-            },
-          ],
-        }).catch(console.log);
         return resolve();
       }
 
