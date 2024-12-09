@@ -15,14 +15,7 @@ export const Offshore = (params, request_id, fastify) => {
       }
 
       // Variable Declaration
-      const { customFieldId, value, folderId } = params;
-
-      if (
-        customFieldId != CustomFieldIds["CopyToChild*"] ||
-        !value.includes("Overwrite")
-      ) {
-        return resolve({ message: "Not an overwrite action" });
-      }
+      const { folderId } = params;
 
       let taskUpdateCustomFields = [];
 
@@ -36,13 +29,11 @@ export const Offshore = (params, request_id, fastify) => {
           is_active: true,
         });
 
-      console.log("Started At :", new Date());
-
       updateFolder(request_id, folderId, {
         customFields: [
           { id: CustomFieldIds["CopyToChild*"], value: "In progress" },
         ],
-      });
+      }).catch(console.log);
 
       const folderData = await getFolder(request_id, folderId);
 
@@ -82,7 +73,7 @@ export const Offshore = (params, request_id, fastify) => {
           customFields: [
             { id: CustomFieldIds["CopyToChild*"], value: "Error" },
           ],
-        });
+        }).catch(console.log);
 
         sendComment(
           request_id,
@@ -101,7 +92,7 @@ export const Offshore = (params, request_id, fastify) => {
         customFields: [
           { id: CustomFieldIds["CopyToChild*"], value: "Completed" },
         ],
-      });
+      }).catch(console.log);
 
       if (request_id)
         LogSteps.Insert({
@@ -113,11 +104,9 @@ export const Offshore = (params, request_id, fastify) => {
           is_active: true,
         });
 
-      console.log("Ended At :", new Date());
-
       // Sending final response
       resolve({
-        message: "Campaign has been created successfully",
+        message: "CopyToChild - Offshore process has been created successfully",
         data: {},
       });
     } catch (err) {
@@ -251,14 +240,14 @@ const executeTaskOperation = (
       const taskIds = await Promise.all(tasks?.data?.map((data) => data?.id));
 
       if (taskIds.length == 0 && !tasks?.nextPageToken) {
-        updateFolder(request_id, taskIds, {
+        updateFolder(request_id, folderId, {
           customFields: [
             {
               id: CustomFieldIds["CopyToChild*"],
               value: "Completed",
             },
           ],
-        });
+        }).catch(console.log);
         return resolve();
       }
 
@@ -287,8 +276,8 @@ const getTasks = (request_id, folderId, taskTempToken) => {
     try {
       // Get the current date and time in UTC
       const currentDate = moment.utc();
-      // Calculate the date 4 years (48 months) before
-      const dateBefore4Years = currentDate.clone().subtract(48, "months");
+      // Calculate the date 4 months before
+      const dateBefore4Years = currentDate.clone().subtract(4, "months");
 
       // Format the dates
       const formattedCurrentDate = currentDate.format("YYYY-MM-DDTHH:mm:ss[Z]");
