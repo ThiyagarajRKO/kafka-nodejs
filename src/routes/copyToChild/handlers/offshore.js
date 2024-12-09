@@ -107,7 +107,7 @@ export const Offshore = (params, request_id, fastify) => {
           log_type: "Info",
           error_message: "",
           step_name: "End",
-          output: data,
+          output: {},
           is_active: true,
         });
 
@@ -116,7 +116,7 @@ export const Offshore = (params, request_id, fastify) => {
       // Sending final response
       resolve({
         message: "Campaign has been created successfully",
-        data,
+        data: {},
       });
     } catch (err) {
       console.log(err?.message || err);
