@@ -354,7 +354,7 @@ const updateTask = (request_id, taskIds, taskData) => {
           error_message: "",
           step_name: "Update Task",
           input: {},
-          output: folderData,
+          output: taskOutput,
           is_active: true,
         });
 
