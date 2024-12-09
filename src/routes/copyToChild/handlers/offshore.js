@@ -19,7 +19,7 @@ export const Offshore = (params, request_id, fastify) => {
 
       if (
         customFieldId != CustomFieldIds["CopyToChild*"] ||
-        value != "Overwrite"
+        !value.includes("Overwrite")
       ) {
         return resolve({ message: "Not an overwrite action" });
       }
