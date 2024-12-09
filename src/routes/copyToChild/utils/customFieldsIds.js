@@ -1,4 +1,4 @@
-{
+module.exports = {
   "test": {
     "CopyToChild*": "IEABCEFLJUAEF4SP",
     "Offshore Global Hub*": "IEABCEFLJUAEF4AL",

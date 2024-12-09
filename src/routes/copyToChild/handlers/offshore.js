@@ -1,6 +1,6 @@
 import { GetResponse } from "../../../utils/node-fetch";
 import { LogSteps } from "../../../controllers";
-import customFieldIdMeta from "../utils/customFieldsIds.json";
+import customFieldIdMeta from "../utils/customFieldsIds";
 import moment from "moment";
 
 const WrikeEndpoint = process.env.WRIKE_ENDPOINT;
