@@ -3,6 +3,7 @@
 import usersRoute from "./users";
 import roleMasterRoute from "./role_master";
 import campaignRoute from "./campaign";
+import copyToChildRoute from "./copyToChild";
 import logRoute from "./log";
 
 // Auth Middleware
@@ -16,6 +17,8 @@ export const PublicRouters = (fastify, opts, done) => {
   fastify.register(usersRoute, { prefix: "/auth" });
 
   fastify.register(roleMasterRoute, { prefix: "/roles" });
+
+  fastify.register(copyToChildRoute, { prefix: "/copytochild" });
 
   done();
 };
