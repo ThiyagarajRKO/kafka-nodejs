@@ -120,7 +120,7 @@ const getFoldersBySpace = (request_id, spaceId, status) => {
           log_type: folderOutput?.errorDescription ? "Error" : "Info",
           error_message: "",
           step_name: "Get Folder",
-          input: { folderId, totalRows: folderOutput?.data?.length },
+          input: { spaceId, totalRows: folderOutput?.data?.length },
           output: {},
           is_active: true,
         });
