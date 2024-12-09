@@ -52,7 +52,7 @@ export const copyToChildRoute = (fastify, opts, done) => {
         console.log("Started At :", new Date());
 
         const logRequestData = await LogRequests.Insert({
-          action_name: "CopyToChild - Offshore",
+          action_name: "CopyToChild - Offshore - Automation",
           method,
           url,
           statusCode: null,
