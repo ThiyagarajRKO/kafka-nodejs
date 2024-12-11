@@ -44,7 +44,9 @@ export const OffshoreAutomation = (params, request_id, fastify) => {
           statuses[j]
         );
 
-        console.log("Total Folder Count:", folderData?.data?.length);
+        console.log(
+          `Total '${statuses[j]}' folders: ${folderData?.data?.length}`
+        );
         for (let i = 0; i < folderData?.data.length; i++) {
           console.log(`Folder ${i + 1} started at ${new Date()}`);
           if (request_id)
