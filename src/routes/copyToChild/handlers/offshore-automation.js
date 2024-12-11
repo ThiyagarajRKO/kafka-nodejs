@@ -44,7 +44,9 @@ export const OffshoreAutomation = (params, request_id, fastify) => {
           statuses[j]
         );
 
+        console.log("Total Folder Count:", folderData?.data?.length);
         for (let i = 0; i < folderData?.data.length; i++) {
+          console.log(`Folder ${i + 1} started at ${new Date()}`);
           if (request_id)
             LogSteps.Insert({
               request_id,
@@ -96,6 +98,16 @@ export const OffshoreAutomation = (params, request_id, fastify) => {
       });
     } catch (err) {
       console.log(err?.message || err);
+
+      if (request_id)
+        LogSteps.Insert({
+          request_id,
+          log_type: "Error",
+          error_message: err?.message,
+          step_name: "Automation Error",
+          is_active: true,
+        });
+
       reject(err);
     }
   });

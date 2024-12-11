@@ -285,7 +285,7 @@ const getTasks = (request_id, folderId, taskTempToken) => {
 
       // Get folder data
       const taskOutput = await GetResponse(
-        `${WrikeEndpoint}/folders/${folderId}/tasks?subTasks=true&pageSize=100&createdDate=${createdDate}&nextPageToken=${taskTempToken ?? ""}`,
+        `${WrikeEndpoint}/folders/${folderId}/tasks?subTasks=true&pageSize=20&createdDate=${createdDate}&nextPageToken=${taskTempToken ?? ""}`,
         "GET",
         {
           "content-type": "application/json",
