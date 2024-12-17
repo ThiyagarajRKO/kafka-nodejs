@@ -63,7 +63,10 @@ export const Onshore = (params, request_id, fastify) => {
           if (index > -1 && reqCFIndex > -1) {
             taskUpdateCustomFields.push({
               id: data["id"],
-              value: data["value"],
+              value:
+                data?.id == CustomFieldIds["WrikeXPI-State"]
+                  ? "Completed"
+                  : data["value"],
             });
           }
 
@@ -135,6 +138,16 @@ export const Onshore = (params, request_id, fastify) => {
 
       taskUpdateCustomFields.push({
         id: debtorSpaceNameId[0],
+        value: folderCustomFieldsValues[debtorSpaceNameId[0]],
+      });
+
+      taskUpdateCustomFields.push({
+        id: CustomFieldIds["Client*"],
+        value: folderCustomFieldsValues[clientSpaceNameId[0]],
+      });
+
+      taskUpdateCustomFields.push({
+        id: CustomFieldIds["Debtor*"],
         value: folderCustomFieldsValues[debtorSpaceNameId[0]],
       });
 
@@ -414,9 +427,12 @@ const executeTaskOperation = (
 
       const taskIds = await Promise.all(tasks?.data?.map((data) => data?.id));
 
-      if (taskIds.length == 0 && !tasks?.nextPageToken) {
-        return resolve();
-      }
+      if (taskIds.length == 0 && !tasks?.nextPageToken)
+        return setErrorStatus(
+          request_id,
+          folderId,
+          "No tasks found in the project"
+        ).catch(reject);
 
       await updateTask(request_id, taskIds, {
         customFields: taskUpdateCustomFields,
@@ -441,26 +457,9 @@ const executeTaskOperation = (
 const getTasks = (request_id, folderId, taskTempToken) => {
   return new Promise(async (resolve, reject) => {
     try {
-      // Get the current date and time in UTC
-      const currentDate = moment.utc();
-      // Calculate the date 4 months before
-      const dateBefore4Years = currentDate.clone().subtract(4, "months");
-
-      // Format the dates
-      const formattedCurrentDate = currentDate.format("YYYY-MM-DDTHH:mm:ss[Z]");
-      const formattedDateBefore4Years = dateBefore4Years.format(
-        "YYYY-MM-DDTHH:mm:ss[Z]"
-      );
-
-      // Manually construct the JSON string
-      const createdDate = JSON.stringify({
-        start: formattedDateBefore4Years,
-        end: formattedCurrentDate,
-      });
-
       // Get folder data
       const taskOutput = await GetResponse(
-        `${WrikeEndpoint}/folders/${folderId}/tasks?subTasks=true&pageSize=20&createdDate=${createdDate}&nextPageToken=${taskTempToken ?? ""}`,
+        `${WrikeEndpoint}/folders/${folderId}/tasks?descendants=true&sortField=Title&sortOrder=Asc&subTasks=true&pageSize=20&nextPageToken=${taskTempToken ?? ""}`,
         "GET",
         {
           "content-type": "application/json",
