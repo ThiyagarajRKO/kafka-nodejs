@@ -120,7 +120,7 @@ const getFoldersBySpace = (request_id, spaceId, status) => {
     try {
       // Get folder data
       const folderOutput = await GetResponse(
-        `${WrikeEndpoint}/spaces/${spaceId}/folders?customFields=[{ id:'${CustomFieldIds["CopyToChild*"]}', comparator:'EqualTo', value:'${status}' }]&descendants=true&project=false`,
+        `${WrikeEndpoint}/spaces/${spaceId}/folders?customFields=[{ id:'${CustomFieldIds["CopyToChild*"]}', comparator:'EqualTo', value:'${status}' }]&descendants=true&project=true`,
         "GET",
         {
           "content-type": "application/json",
