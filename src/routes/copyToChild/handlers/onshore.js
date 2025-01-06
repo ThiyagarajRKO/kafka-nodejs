@@ -83,7 +83,9 @@ export const Onshore = (params, request_id, fastify) => {
           request_id,
           folderId,
           "CopyToChild failed to run due to missing custom field <b>space name</b>"
-        ).catch(reject);
+        )
+          .then(resolve)
+          .catch(reject);
 
       const spaceNameArray = spaceName.split("-");
       const clientCol = `Clients-${spaceNameArray[0]}-${spaceNameArray[1]}`;
@@ -107,28 +109,36 @@ export const Onshore = (params, request_id, fastify) => {
           request_id,
           folderId,
           `CopyToChild failed to run due to missing custom field <b>${clientCol}</b> (for your market or agency)`
-        ).catch(reject);
+        )
+          .then(resolve)
+          .catch(reject);
 
       if (!debtorSpaceNameId || debtorSpaceNameId?.length <= 0)
         return setErrorStatus(
           request_id,
           folderId,
           `CopyToChild failed to run due to missing custom field <b>${debtorCol}</b> (for your market or agency)`
-        ).catch(reject);
+        )
+          .then(resolve)
+          .catch(reject);
 
       if (clientSpaceNameId?.length > 1)
         return setErrorStatus(
           request_id,
           folderId,
           `CopyToChild failed to run due to missing custom field <b>${clientCol}</b> (for your market or agency) present multiple times`
-        ).catch(reject);
+        )
+          .then(resolve)
+          .catch(reject);
 
       if (debtorSpaceNameId?.length > 1)
         return setErrorStatus(
           request_id,
           folderId,
           `CopyToChild failed to run due to missing custom field <b>${debtorCol}</b> (for your market or agency) present multiple times`
-        ).catch(reject);
+        )
+          .then(resolve)
+          .catch(reject);
 
       // Inserting Client and Debtors space name
       taskUpdateCustomFields.push({
@@ -151,7 +161,11 @@ export const Onshore = (params, request_id, fastify) => {
         value: folderCustomFieldsValues[debtorSpaceNameId[0]],
       });
 
-      await executeTaskOperation(request_id, folderId, taskUpdateCustomFields);
+      await executeTaskOperation(
+        request_id,
+        folderId,
+        taskUpdateCustomFields
+      ).catch(reject);
 
       await updateFolder(request_id, folderId, {
         customFields: [
@@ -169,7 +183,7 @@ export const Onshore = (params, request_id, fastify) => {
           },
           { id: CustomFieldIds["CopyToChild*"], value: "Completed" },
         ],
-      }).catch(console.log);
+      }).catch(reject);
 
       if (request_id)
         LogSteps.Insert({
@@ -213,10 +227,13 @@ const setErrorStatus = (request_id, folderId, error_message) => {
 
       sendComment(request_id, folderId, error_message);
 
-      return reject({
+      console.log(folderId + ": " + error_message);
+
+      resolve({
         message: error_message,
       });
     } catch (err) {
+      console.error(err?.message);
       reject(err);
     }
   });
@@ -432,7 +449,9 @@ const executeTaskOperation = (
           request_id,
           folderId,
           "No tasks found in the project"
-        ).catch(reject);
+        )
+          .then(resolve)
+          .catch(reject);
 
       await updateTask(request_id, taskIds, {
         customFields: taskUpdateCustomFields,

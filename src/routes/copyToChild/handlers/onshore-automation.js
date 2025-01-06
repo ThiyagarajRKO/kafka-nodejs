@@ -26,29 +26,23 @@ export const OnshoreAutomation = (params, request_id, fastify) => {
           is_active: true,
         });
 
-      const statuses = ["Overwrite", "In Progress"];
-      for (let j = 0; j < statuses.length; j++) {
+      const statuses = ["Overwrite", "In Progress", "CopyNew"];
+      for (const status of statuses) {
         if (request_id)
           LogSteps.Insert({
             request_id,
             log_type: "Info",
             error_message: "",
-            step_name: "Started " + statuses[j] + " process",
+            step_name: "Started " + status + " process",
             input: params,
             is_active: true,
           });
 
-        const folderData = await getFoldersBySpace(
-          request_id,
-          spaceId,
-          statuses[j]
-        );
+        const folderData = await getFoldersBySpace(request_id, spaceId, status);
 
-        console.log(
-          `Total '${statuses[j]}' folders: ${folderData?.data?.length}`
-        );
-        for (let i = 0; i < folderData?.data.length; i++) {
-          console.log(`Folder ${i + 1} started at ${new Date()}`);
+        console.log(`Total '${status}' folders: ${folderData?.data?.length}`);
+        for (const data of folderData?.data) {
+          console.log(`Folder ${data?.id} started at ${new Date()}`);
           if (request_id)
             LogSteps.Insert({
               request_id,
@@ -58,15 +52,15 @@ export const OnshoreAutomation = (params, request_id, fastify) => {
               input: {
                 customFieldId: CustomFieldIds["CopyToChild*"],
                 eventType: "FolderCustomFieldChanged",
-                value: "Overwrite",
-                folderId: folderData?.data[i]["id"],
+                value: status,
+                folderId: data?.id,
               },
               is_active: true,
             });
 
           const offshoreOutput = await Onshore(
             {
-              folderId: folderData?.data[i]["id"],
+              folderId: data?.id,
             },
             null,
             fastify
