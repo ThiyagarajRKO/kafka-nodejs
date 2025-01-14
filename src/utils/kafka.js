@@ -1,5 +1,6 @@
 import { Kafka, logLevel } from "kafkajs";
 import { BROKERS, CLIENT_ID } from "../../config/kafka";
+import { SendEmail } from "./nodemailer";
 require("dotenv").config();
 
 const kafkaConfig = {
@@ -47,9 +48,48 @@ export const consume = (topic) => {
         eachMessage: async ({ topic, partition, message }) => {
           const value = message.value.toString();
           // callback(topic, partition, value);
+
+          const payload = JsonParser(value);
           console.log(
-            `Received payload:\nTopic: ${topic},\nMessage: ${JsonParser(value) || value}\n\n`
+            `Received payload:\nTopic: ${topic},\nMessage: ${JSON.stringify(payload, null, 4)}\n\n`
           );
+
+          if (process.env.NODE_ENV.toLowerCase() == "local") return;
+
+          const htmlBody = `<h3>Informatica Error</h3>
+            <table style="padding:5px; border:1px solid; border-radius:5px">
+                <tr>
+                    <th style="text-align:left">Step</th>
+                    <td>${payload?.step}</td>
+                </tr>
+                <tr>
+                    <th style="text-align:left">Code</th>
+                    <td>${payload?.data?.code}</td>
+                </tr>
+                <tr>
+                    <th style="text-align:left">Message</th>
+                    <td>${JSON.stringify(payload?.data?.message, null, 4)}</td>
+                </tr>
+                <tr>
+                    <th style="text-align:left">Details</th>
+                    <td>${payload?.data?.details}</td>
+                </tr>
+                <tr>
+                    <th style="text-align:left">c2cType</th>
+                    <td>${payload?.data?.c2cType}</td>
+                </tr>
+                <tr>
+                    <th style="text-align:left">c2cExecution</th>
+                    <td>${payload?.data?.c2cExecution}</td>
+                </tr>
+                <tr>
+                    <th style="text-align:left">InputParam</th>
+                    <td>${JSON.stringify(payload?.data?.inputParam, null, 4)}</td>
+                </tr>
+            </table>
+          `;
+
+          SendEmail(htmlBody);
         },
       });
 
@@ -68,9 +108,7 @@ const JsonParser = (value) => {
       payload.data.message =
         JSON.parse(payload?.data?.message) || payload?.data?.message;
 
-    const data = JSON.stringify(payload, null, 4);
-
-    return data;
+    return payload;
   } catch (err) {
     console.log(err?.message);
     return "";
