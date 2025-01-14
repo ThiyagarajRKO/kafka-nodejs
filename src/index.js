@@ -5,11 +5,12 @@ import AutoLoad from "@fastify/autoload";
 import path from "path";
 import Fastify from "fastify";
 import dotenv from "dotenv";
+import { consume as kafkaConsumer } from "./utils/kafka";
 
 dotenv.config();
 
 // Importing Routes
-import { PrivateRouters, PublicRouters, ExternalRouters } from "./routes";
+import { PrivateRouters, PublicRouters } from "./routes";
 
 // Configure the framework and instantiate it
 const fastify = Fastify({
@@ -31,7 +32,6 @@ fastify.register(AutoLoad, {
 //routes
 fastify.register(PublicRouters, { prefix: "/api/v1" });
 fastify.register(PrivateRouters, { prefix: "/api/v1" });
-fastify.register(ExternalRouters, { prefix: "/api/v2" });
 
 // Run the server!
 fastify.listen(
@@ -61,22 +61,10 @@ fastify.addHook("onSend", function (request, reply, payload, done) {
   }
 });
 
+// Kafka Consumer
+kafkaConsumer("test-topic").catch(console.log);
+
 // View Handlers
 fastify.get("/", (req, res) => {
-  res.view("index.ejs");
-});
-
-fastify.get("/AdminMain", function (req, res) {
-  res.view("AdminMain.ejs", {
-    full_name: req?.session?.full_name,
-    role_name: req?.session?.role_name,
-  });
-});
-
-fastify.get("/Dashboard", function (req, res) {
-  res.view("Dashboard.ejs");
-});
-
-fastify.get("/LogReport", function (req, res) {
-  res.view("LogReport.ejs");
+  res.send({ message: "Kafka server is running..." });
 });

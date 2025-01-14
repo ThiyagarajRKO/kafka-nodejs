@@ -1,24 +1,13 @@
 "use strict";
 
-import usersRoute from "./users";
-import roleMasterRoute from "./role_master";
-import campaignRoute from "./campaign";
-import copyToChildRoute from "./copyToChild";
-import logRoute from "./log";
+import kafkaRoute from "./kafka";
 
 // Auth Middleware
-import {
-  ValidateUser,
-  ValidateExternalUser,
-} from "../middlewares/authentication";
+import { ValidateUser } from "../middlewares/authentication";
 
 //Public Routes
 export const PublicRouters = (fastify, opts, done) => {
-  fastify.register(usersRoute, { prefix: "/auth" });
-
-  fastify.register(roleMasterRoute, { prefix: "/roles" });
-
-  fastify.register(copyToChildRoute, { prefix: "/copytochild" });
+  fastify.register(kafkaRoute, { prefix: "/kafka" });
 
   done();
 };
@@ -29,17 +18,7 @@ export const PrivateRouters = (fastify, opts, done) => {
   fastify.addHook("onRequest", ValidateUser);
   // fastify.use(ValidateUser);
 
-  fastify.register(logRoute, { prefix: "/log" });
-
-  done();
-};
-
-//External Routes
-export const ExternalRouters = (fastify, opts, done) => {
-  // Validating session
-  fastify.addHook("onRequest", ValidateExternalUser);
-
-  fastify.register(campaignRoute, { prefix: "/campaign" });
+  // fastify.register(logRoute, { prefix: "/kafka" });
 
   done();
 };

@@ -1,8 +1,7 @@
-const dotenv = require("dotenv");
 const { Pool } = require("pg");
 const { v4: uuidv4 } = require("uuid");
 
-dotenv.config();
+require("dotenv").config();
 
 // PostgreSQL connection pool
 const pool = new Pool({
