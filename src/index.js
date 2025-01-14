@@ -62,7 +62,7 @@ fastify.addHook("onSend", function (request, reply, payload, done) {
 });
 
 // Kafka Consumer
-kafkaConsumer("test-topic").catch(console.log);
+kafkaConsumer("wrike-informatica").catch(console.log);
 
 // View Handlers
 fastify.get("/", (req, res) => {
