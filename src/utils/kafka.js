@@ -48,7 +48,7 @@ export const consume = (topic) => {
           const value = message.value.toString();
           // callback(topic, partition, value);
           console.log(
-            `Received payload:\nTopic: ${topic},\nMessage: ${value}\n\n`
+            `Received payload:\nTopic: ${topic},\nMessage: ${JsonParser(value) || value}\n\n`
           );
         },
       });
@@ -58,4 +58,21 @@ export const consume = (topic) => {
       reject({ message: err?.message || err });
     }
   });
+};
+
+const JsonParser = (value) => {
+  try {
+    const payload = JSON.parse(value);
+
+    if (payload?.data?.message)
+      payload.data.message =
+        JSON.parse(payload?.data?.message) || payload?.data?.message;
+
+    const data = JSON.stringify(payload, null, 4);
+
+    return data;
+  } catch (err) {
+    console.log(err?.message);
+    return "";
+  }
 };
