@@ -29,7 +29,7 @@ const logger = winston.createLogger({
       maxFiles: 5, // Keep 5 rotated files
     }),
     // Optionally log to the console for debugging
-    new winston.transports.Console(),
+    // new winston.transports.Console(),
   ],
 });
 
@@ -42,18 +42,3 @@ export const logData = (level, topic, data, message = "") => {
     message,
   });
 };
-
-// Example usage
-logData(
-  "info",
-  "wrike data",
-  { userId: 123, task: "create" },
-  "User created a task"
-);
-
-logData(
-  "error",
-  "wrike data",
-  { userId: 456, error: "Invalid request" },
-  "Failed to process task"
-);
