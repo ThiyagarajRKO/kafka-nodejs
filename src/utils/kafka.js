@@ -1,6 +1,7 @@
 import { Kafka, logLevel } from "kafkajs";
 import { BROKERS, CLIENT_ID } from "../../config/kafka";
 import { SendEmail } from "./nodemailer";
+import { logData } from "./wingston";
 require("dotenv").config();
 
 const kafkaConfig = {
@@ -41,7 +42,7 @@ export const consume = (topic) => {
       await consumer.connect();
       await consumer.subscribe({
         topic,
-        fromBeginning: process.env.FROM_BEGINNING || false,
+        fromBeginning: process.env.FROM_BEGINNING == "true",
       });
 
       await consumer.run({
@@ -55,6 +56,8 @@ export const consume = (topic) => {
           );
 
           if (process.env.NODE_ENV.toLowerCase() == "local") return;
+
+          logData("error", topic, payload, "");
 
           const htmlBody = `<h3>Informatica Error</h3>
             <table style="padding:5px; border:1px solid; border-radius:5px">
