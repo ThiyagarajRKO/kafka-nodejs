@@ -57,7 +57,7 @@ export const consume = (topic) => {
 
           if (process.env.NODE_ENV.toLowerCase() == "local") return;
 
-          logData("error", topic, payload, "");
+          logData(payload?.status?.toLowerCase(), topic, payload, "");
 
           const htmlBody = `<h3>Informatica Error</h3>
             <table style="padding:5px; border:1px solid; border-radius:5px">
