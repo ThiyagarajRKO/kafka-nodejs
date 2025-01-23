@@ -1,4 +1,4 @@
-import { Kafka, logLevel } from "kafkajs";
+139.5.190.113import { Kafka, logLevel } from "kafkajs";
 import { BROKERS, CLIENT_ID } from "../../config/kafka";
 import { SendEmail } from "./nodemailer";
 import { logData } from "./wingston";
@@ -57,14 +57,10 @@ export const consume = (topic) => {
 
           if (process.env.NODE_ENV.toLowerCase() == "local") return;
 
-          logData(payload?.status == "success" ? "info" : payload?.status?.toLowerCase(), topic, payload, "");
+          logData("error", topic, payload, "");
 
           const htmlBody = `<h3>Informatica Error</h3>
             <table style="padding:5px; border:1px solid; border-radius:5px">
-                <tr>
-                    <th style="text-align:left">Process/Log ID</th>
-                    <td>${payload?.data?.id}</td>
-                </tr>
                 <tr>
                     <th style="text-align:left">Step</th>
                     <td>${payload?.step}</td>
