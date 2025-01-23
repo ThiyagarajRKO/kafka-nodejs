@@ -62,6 +62,10 @@ export const consume = (topic) => {
           const htmlBody = `<h3>Informatica Error</h3>
             <table style="padding:5px; border:1px solid; border-radius:5px">
                 <tr>
+                    <th style="text-align:left">Process/Log ID</th>
+                    <td>${payload?.data?.id}</td>
+                </tr>
+                <tr>
                     <th style="text-align:left">Step</th>
                     <td>${payload?.step}</td>
                 </tr>
