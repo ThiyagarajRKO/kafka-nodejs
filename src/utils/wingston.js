@@ -27,27 +27,23 @@ const logger = winston.createLogger({
   transports: [
     // Transport for error logs
     new winston.transports.File({
-      filename: path.join(
-        __dirname,
-        "../../logs",
-        `app-error-${currentDate}.log`
-      ),
+      filename: path.join(__dirname, "../../logs", `app-${currentDate}.log`),
       maxsize: 5242880, // 5MB max size
       maxFiles: 5, // Keep 5 rotated files
-      level: "error",
+      // level: "error",
     }),
 
-    // Transport for info logs
-    new winston.transports.File({
-      filename: path.join(
-        __dirname,
-        "../../logs",
-        `app-info-${currentDate}.log`
-      ),
-      maxsize: 5242880, // 5MB max size
-      maxFiles: 5, // Keep 5 rotated files
-      level: "info",
-    }),
+    // // Transport for info logs
+    // new winston.transports.File({
+    //   filename: path.join(
+    //     __dirname,
+    //     "../../logs",
+    //     `app-info-${currentDate}.log`
+    //   ),
+    //   maxsize: 5242880, // 5MB max size
+    //   maxFiles: 5, // Keep 5 rotated files
+    //   level: "info",
+    // }),
 
     // Optional console transport for development
     // new winston.transports.Console({
