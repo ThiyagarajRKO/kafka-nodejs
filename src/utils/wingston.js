@@ -20,7 +20,6 @@ const customFormat = winston.format.printf(
 
 // Create the logger instance
 const logger = winston.createLogger({
-  level: "info", // Default log level
   format: winston.format.combine(
     winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), // Add timestamp
     customFormat // Apply custom format
@@ -48,18 +47,6 @@ const logger = winston.createLogger({
       maxsize: 5242880, // 5MB max size
       maxFiles: 5, // Keep 5 rotated files
       level: "info",
-    }),
-
-    // Transport for debug logs
-    new winston.transports.File({
-      filename: path.join(
-        __dirname,
-        "../../logs",
-        `app-debug-${currentDate}.log`
-      ),
-      maxsize: 5242880, // 5MB max size
-      maxFiles: 5, // Keep 5 rotated files
-      level: "debug",
     }),
 
     // Optional console transport for development
