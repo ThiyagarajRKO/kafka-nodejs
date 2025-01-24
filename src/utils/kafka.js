@@ -65,7 +65,7 @@ export const consume = (topic) => {
             <table style="padding:5px; border:1px solid; border-radius:5px">
                 <tr>
                     <th style="text-align:left">Process/Log ID</th>
-                    <td>${payload?.data?.id}</td>
+                    <td>${payload?.id}</td>
                 </tr>
                 <tr>
                     <th style="text-align:left">Step</th>
@@ -73,27 +73,27 @@ export const consume = (topic) => {
                 </tr>
                 <tr>
                     <th style="text-align:left">Code</th>
-                    <td>${payload?.data?.code}</td>
+                    <td>${payload?.code}</td>
                 </tr>
                 <tr>
                     <th style="text-align:left">Message</th>
-                    <td>${JSON.stringify(payload?.data?.message, null, 4)}</td>
+                    <td>${JSON.stringify(payload?.message, null, 4)}</td>
                 </tr>
                 <tr>
                     <th style="text-align:left">Details</th>
-                    <td>${payload?.data?.details}</td>
+                    <td>${payload?.details}</td>
                 </tr>
                 <tr>
                     <th style="text-align:left">c2cType</th>
-                    <td>${payload?.data?.c2cType}</td>
+                    <td>${payload?.c2cType}</td>
                 </tr>
                 <tr>
                     <th style="text-align:left">c2cExecution</th>
-                    <td>${payload?.data?.c2cExecution}</td>
+                    <td>${payload?.c2cExecution}</td>
                 </tr>
                 <tr>
                     <th style="text-align:left">InputParam</th>
-                    <td>${JSON.stringify(payload?.data?.inputParam, null, 4)}</td>
+                    <td>${JSON.stringify(payload?.inputParam, null, 4)}</td>
                 </tr>
             </table>
           `;
@@ -113,9 +113,11 @@ const JsonParser = (value) => {
   try {
     const payload = JSON.parse(value);
 
-    if (payload?.data?.message)
-      payload.data.message =
-        JSON.parse(payload?.data?.message) || payload?.data?.message;
+    if (payload?.message)
+      payload.message =
+        typeof payload?.message == "string"
+          ? JSON.parse(payload?.message)
+          : payload?.message;
 
     return payload;
   } catch (err) {
