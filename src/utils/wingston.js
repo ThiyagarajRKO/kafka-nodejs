@@ -20,6 +20,7 @@ const customFormat = winston.format.printf(
 
 // Create the logger instance
 const logger = winston.createLogger({
+  level: "info",
   format: winston.format.combine(
     winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), // Add timestamp
     customFormat // Apply custom format
