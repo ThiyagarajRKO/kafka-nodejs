@@ -49,6 +49,18 @@ const logger = winston.createLogger({
       maxFiles: 5, // Keep 5 rotated files
       level: "info",
     }),
+
+    // Write info logs to a file with the current date
+    new winston.transports.File({
+      filename: path.join(
+        __dirname,
+        "/../../logs",
+        `app-debug-${currentDate}.log`
+      ),
+      maxsize: 5242880, // 5MB max size
+      maxFiles: 5, // Keep 5 rotated files
+      level: "debug",
+    }),
     // Optionally log to the console for debugging
     // new winston.transports.Console(),
   ],
@@ -56,10 +68,25 @@ const logger = winston.createLogger({
 
 // Function to log your data
 export const logData = (level, topic, data, message = "") => {
-  logger.log({
-    level,
-    topic,
-    data,
-    message,
-  });
+  if (level == "error")
+    logger.error({
+      level,
+      topic,
+      data,
+      message,
+    });
+  else if (level == "info")
+    logger.info({
+      level,
+      topic,
+      data,
+      message,
+    });
+  else
+    logger.debug({
+      level,
+      topic,
+      data,
+      message,
+    });
 };
