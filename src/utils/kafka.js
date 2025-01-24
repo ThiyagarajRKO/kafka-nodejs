@@ -113,11 +113,11 @@ const JsonParser = (value) => {
   try {
     const payload = JSON.parse(value);
 
-    if (payload?.message)
-      payload.message =
-        typeof payload?.message == "string"
-          ? JSON.parse(payload?.message)
-          : payload?.message;
+    // if (payload?.message)
+    //   payload.message =
+    //     typeof payload?.message == "string"
+    //       ? JSON.parse(payload?.message)
+    //       : payload?.message;
 
     return payload;
   } catch (err) {
