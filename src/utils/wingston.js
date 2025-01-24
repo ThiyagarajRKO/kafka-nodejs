@@ -1,9 +1,9 @@
 import winston from "winston";
 import path from "path";
-import moment from "moment";
+import dayjs from "dayjs"; // Lightweight alternative to moment
 
 // Generate the log file names with the current date
-const currentDate = moment().format("YYYYMMDD"); // Format date as YYYYMMDD
+const currentDate = dayjs().format("YYYYMMDD"); // Format date as YYYYMMDD
 
 // Create a custom log format to include topic and data
 const customFormat = winston.format.printf(
@@ -20,17 +20,17 @@ const customFormat = winston.format.printf(
 
 // Create the logger instance
 const logger = winston.createLogger({
-  level: "info", // Log level
+  level: "info", // Default log level
   format: winston.format.combine(
-    winston.format.timestamp(), // Add timestamp
+    winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), // Add timestamp
     customFormat // Apply custom format
   ),
   transports: [
-    // Write logs to a file
+    // Transport for error logs
     new winston.transports.File({
       filename: path.join(
         __dirname,
-        "/../../logs",
+        "../../logs",
         `app-error-${currentDate}.log`
       ),
       maxsize: 5242880, // 5MB max size
@@ -38,11 +38,11 @@ const logger = winston.createLogger({
       level: "error",
     }),
 
-    // Write info logs to a file with the current date
+    // Transport for info logs
     new winston.transports.File({
       filename: path.join(
         __dirname,
-        "/../../logs",
+        "../../logs",
         `app-info-${currentDate}.log`
       ),
       maxsize: 5242880, // 5MB max size
@@ -50,43 +50,34 @@ const logger = winston.createLogger({
       level: "info",
     }),
 
-    // Write info logs to a file with the current date
+    // Transport for debug logs
     new winston.transports.File({
       filename: path.join(
         __dirname,
-        "/../../logs",
+        "../../logs",
         `app-debug-${currentDate}.log`
       ),
       maxsize: 5242880, // 5MB max size
       maxFiles: 5, // Keep 5 rotated files
       level: "debug",
     }),
-    // Optionally log to the console for debugging
-    // new winston.transports.Console(),
+
+    // Optional console transport for development
+    // new winston.transports.Console({
+    //   format: winston.format.combine(
+    //     winston.format.colorize(),
+    //     winston.format.simple()
+    //   ),
+    // }),
   ],
 });
 
 // Function to log your data
 export const logData = (level, topic, data, message = "") => {
-  if (level == "error")
-    logger.error({
-      level,
-      topic,
-      data,
-      message,
-    });
-  else if (level == "info")
-    logger.info({
-      level,
-      topic,
-      data,
-      message,
-    });
-  else
-    logger.debug({
-      level,
-      topic,
-      data,
-      message,
-    });
+  logger.log({
+    level,
+    topic,
+    data,
+    message,
+  });
 };
