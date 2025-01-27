@@ -1,0 +1,14 @@
+API to Create ElasticSearch User
+curl -X POST "http://localhost:9200/_security/user/GroupM" -H "Content-Type: application/json" -u elastic:MeyKdM0BsY1VvrVJ4XZs -d'
+{
+  "password" : "GroupM@123!",
+  "roles" : [ "kibana_user" ],
+  "full_name" : "GroupM Admin",
+  "email" : "thiyagaraj.adaikalam@groupm.com",
+  "enabled" : true
+}'
+
+
+Commands:
+ElasticSearch Reset Password: (To pass in Docker compose file at Kibana)
+docker exec -it elasticsearch bin/elasticsearch-reset-password -u kibana_system
