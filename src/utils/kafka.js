@@ -61,7 +61,7 @@ export const consume = (topic) => {
 
           if (payload?.status?.toLowerCase() != "error") return;
 
-          const htmlBody = `<h3>Informatica ${payload?.status}</h3>
+          const htmlBody = `<h3>Informatica ${payload?.status} - ${payload?.environment}</h3>
             <table style="padding:5px; border:1px solid; border-radius:5px">
                 <tr>
                     <th style="text-align:left">Process/Log ID</th>
