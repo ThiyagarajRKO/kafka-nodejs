@@ -28,7 +28,7 @@ const logger = winston.createLogger({
   transports: [
     // Transport for error logs
     new winston.transports.File({
-      filename: path.join(__dirname, "../../logs", `app-${currentDate}.log`),
+      filename: path.join(__dirname, "../../logs", `app.log`),
       maxsize: 5242880, // 5MB max size
       maxFiles: 5, // Keep 5 rotated files
       // level: "error",
