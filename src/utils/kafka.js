@@ -34,10 +34,10 @@ export const produce = (topic, data) => {
   });
 };
 
-export const consume = (topic) => {
+export const consume = (topic, groupId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const consumer = kafka.consumer({ groupId: process.env.GROUP_ID });
+      const consumer = kafka.consumer({ groupId });
 
       await consumer.connect();
       await consumer.subscribe({
