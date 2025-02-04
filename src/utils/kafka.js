@@ -55,9 +55,15 @@ export const consume = (topic, groupId) => {
             `Received payload:\nTopic: ${topic},\nMessage: ${JSON.stringify(payload, null, 4)}\n\n`
           );
 
-          if (process.env.NODE_ENV.toLowerCase() == "local") return;
+          logData(
+            payload?.status?.toLowerCase(),
+            topic,
+            payload,
+            payload?.environment?.toLowerCase() ?? "test",
+            ""
+          );
 
-          logData(payload?.status?.toLowerCase(), topic, payload, "");
+          if (process.env.NODE_ENV.toLowerCase() == "local") return;
 
           if (payload?.status?.toLowerCase() != "error") return;
 

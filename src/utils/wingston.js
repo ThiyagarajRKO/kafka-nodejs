@@ -2,62 +2,40 @@ import winston from "winston";
 import path from "path";
 import dayjs from "dayjs"; // Lightweight alternative to moment
 
-// Generate the log file names with the current date
-const currentDate = dayjs().format("YYYYMMDD"); // Format date as YYYYMMDD
+// Function to create a logger instance based on environment and date
+const createLogger = (env) => {
+  const currentDate = dayjs().format("YYYY-MM-DD"); // Format date as YYYY-MM-DD
+  const logFileName = `app-${env}-${currentDate}.log`; // Log file includes date
+  const logFilePath = path.join(__dirname, "../../logs", logFileName);
 
-// Create a custom log format to include topic and data
-const customFormat = winston.format.printf(
-  ({ timestamp, level, message, topic, data }) => {
-    return JSON.stringify({
-      timestamp,
-      level,
-      topic,
-      message,
-      data,
-    });
-  }
-);
-
-// Create the logger instance
-const logger = winston.createLogger({
-  level: "info",
-  format: winston.format.combine(
-    winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), // Add timestamp
-    customFormat // Apply custom format
-  ),
-  transports: [
-    // Transport for error logs
-    new winston.transports.File({
-      filename: path.join(__dirname, "../../logs", `app.log`),
-      maxsize: 5242880, // 5MB max size
-      maxFiles: 5, // Keep 5 rotated files
-      // level: "error",
-    }),
-
-    // // Transport for info logs
-    // new winston.transports.File({
-    //   filename: path.join(
-    //     __dirname,
-    //     "../../logs",
-    //     `app-info-${currentDate}.log`
-    //   ),
-    //   maxsize: 5242880, // 5MB max size
-    //   maxFiles: 5, // Keep 5 rotated files
-    //   level: "info",
-    // }),
-
-    // Optional console transport for development
-    // new winston.transports.Console({
-    //   format: winston.format.combine(
-    //     winston.format.colorize(),
-    //     winston.format.simple()
-    //   ),
-    // }),
-  ],
-});
+  return winston.createLogger({
+    level: "info",
+    format: winston.format.combine(
+      winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+      winston.format.printf(({ timestamp, level, message, topic, data }) => {
+        return JSON.stringify({
+          timestamp,
+          level,
+          topic,
+          message,
+          data,
+        });
+      })
+    ),
+    transports: [
+      new winston.transports.File({
+        filename: logFilePath,
+        maxsize: 5242880, // 5MB max size
+        maxFiles: 5, // Keep 5 rotated files
+      }),
+    ],
+  });
+};
 
 // Function to log your data
-export const logData = (level, topic, data, message = "") => {
+export const logData = (level, topic, data, env, message = "") => {
+  const logger = createLogger(env); // Create logger dynamically based on env and date
+
   logger.log({
     level,
     topic,
