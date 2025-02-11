@@ -6,28 +6,3 @@ docker exec -it elasticsearch bin/elasticsearch-reset-password -u elastic
 
 // Optional
 docker exec -it elasticsearch bin/elasticsearch-reset-password -u logstash_user // ignore logstash 403 error
-
-
-(or)
-
-// Optional
-API to Create ElasticSearch User
-curl -X POST "http://localhost:9200/_security/user/GroupM" -H "Content-Type: application/json" -u elastic:GroupM@123! -d'
-{
-  "password" : "GroupM@123!",
-  "roles" : [ "log_user" ],
-  "full_name" : "GroupM Admin",
-  "email" : "thiyagaraj.adaikalam@groupm.com",
-  "enabled" : true
-}'
-
-// Optional
-API to Create an User for Logstash with logstash_writer permission
-curl -X POST "http://localhost:9200/_security/user/logstash_user" -H "Content-Type: application/json" -u elastic:GroupM@123! -d'
-{
-  "password" : "GroupM@123!",
-  "roles" : [ "logstash_writer" ],
-  "full_name" : "GroupM Admin",
-  "email" : "thiyagaraj.adaikalam@groupm.com",
-  "enabled" : true
-}'
