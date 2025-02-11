@@ -2,15 +2,26 @@ Commands:
 ElasticSearch Reset Password: (To pass in Docker compose file at Kibana)
 docker exec -it elasticsearch bin/elasticsearch-reset-password -u kibana_system
 docker exec -it elasticsearch bin/elasticsearch-reset-password -u elastic
+docker exec -it elasticsearch bin/elasticsearch-reset-password -u logstash_user
 
 
-
+(or)
 
 API to Create ElasticSearch User
-curl -X POST "http://localhost:9200/_security/user/GroupM" -H "Content-Type: application/json" -u elastic:MeyKdM0BsY1VvrVJ4XZs -d'
+curl -X POST "http://localhost:9200/_security/user/GroupM" -H "Content-Type: application/json" -u elastic:GroupM@123! -d'
 {
   "password" : "GroupM@123!",
-  "roles" : [ "kibana_user" ],
+  "roles" : [ "log_user" ],
+  "full_name" : "GroupM Admin",
+  "email" : "thiyagaraj.adaikalam@groupm.com",
+  "enabled" : true
+}'
+
+API to Create an User for Logstash with logstash_writer permission
+curl -X POST "http://localhost:9200/_security/user/logstash_user" -H "Content-Type: application/json" -u elastic:GroupM@123! -d'
+{
+  "password" : "GroupM@123!",
+  "roles" : [ "logstash_writer" ],
   "full_name" : "GroupM Admin",
   "email" : "thiyagaraj.adaikalam@groupm.com",
   "enabled" : true
